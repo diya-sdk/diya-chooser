@@ -22,5 +22,12 @@
     "bower_components",
     "test",
     "tests"
-  ]
+  ],
+  "dependencies": {
+    "paper-button": "Polymer/paper-button#~0.5.5",
+    "paper-dialog": "Polymer/paper-dialog#~0.5.5",
+    "paper-input": "Polymer/paper-input#~0.5.5",
+    "paper-fab": "Polymer/paper-fab#~0.5.5",
+    "paper-toast": "Polymer/paper-toast#~0.5.5"
+  }
 }
