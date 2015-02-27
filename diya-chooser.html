@@ -167,14 +167,11 @@
 			} 
 			this.selectedSetting = setting;
 
-			console.log(setting);
 
 			var diyaClient = new diya.DiyaClient("ws://"+setting.addr, "admin", "pass");
 			
-			console.log('OK');
 
 			diyaClient.createSession(function(node){
-				console.log('connct');
 				that.diyaConnected(node, setting);
 			},
 			function(err){
@@ -193,7 +190,6 @@
 
 			this.saveSettings();
 
-			console.log(this.diya);
 			this.diya.closeCallback(function(){
 				that.diyaDisconnected(node, setting)
 			});
