@@ -1,0 +1,26 @@
+{
+  "name": "diya-chooser",
+  "version": "1.0.0",
+  "homepage": "https://github.com/partnering/diya-chooser",
+  "authors": [
+    "Sylvain Mahé <sylv.mahe@gmail.com>"
+  ],
+  "description": "Polymer component for selecting and connecting to a diya-node instance",
+  "main": "diya-chooser.html",
+  "keywords": [
+    "Diya",
+    "SDK",
+    "Diya",
+    "One",
+    "Partnering",
+    "Robotics"
+  ],
+  "license": "LGPL v3.0",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
