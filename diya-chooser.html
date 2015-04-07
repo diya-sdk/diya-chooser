@@ -170,8 +170,17 @@
 			this.$.chooserDialog.toggle();
 		},
 
+		hideChooser: function(){
+			this.$.chooserDialog.opened = false;
+		},
+
+		displayChooser: function(){
+			this$.chooserDialog.opened = true;
+		},
+
 		addManualSettings: function(){
 			this.manualSettings.push({addr: "127.0.0.1:1234"});
+			this.manualSettings.push({addr: "10.42.0.1:1234"});
 		},
 
 		removeManualSettings: function(id){
@@ -218,11 +227,13 @@
 				that.diyaDisconnected(node, setting)
 			});
 
-			this.toggleChooser();
+			this.hideChooser();
 		},
 
 		diyaDisconnected: function(node, setting){
 			this.diya = null;
+
+			this.displayChooser();
 
 			if(this.selectedSetting === setting){
 				this.connect(setting, true);
