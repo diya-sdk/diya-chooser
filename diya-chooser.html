@@ -141,6 +141,8 @@
 		ready: function(){
 			this.manualSettings = [];
 			this.retrieveSettings();
+			
+			this._disconnectCurrent = false;
 
 			this.networkSettings = diya.discover.availableDiyas();
 			diya.discover.start();
@@ -233,7 +235,7 @@
 		diyaDisconnected: function(node, setting){
 			this.diya = null;
 			
-			if(!this._disconnectCurrent) return ;
+			if(this._disconnectCurrent) return ;
 
 			this.displayChooser();
 
