@@ -232,6 +232,8 @@
 
 		diyaDisconnected: function(node, setting){
 			this.diya = null;
+			
+			if(!this._disconnectCurrent) return ;
 
 			this.displayChooser();
 
@@ -239,7 +241,20 @@
 				this.connect(setting, true);
 			}
 		},
-
+		
+		disconnectCurrent: function(){
+			this._disconnectCurrent = true;
+			if(this.diya){
+				this.diya.disconnect();
+			}
+		},
+		
+		connectCurrent: function(){
+			this._disconnectCurrent = false;
+			if(this.selectedSetting === undefined) return ;
+			this.connect(this.selectedSetting, true);
+		},
+		
 		////////// ACTION LISTENERS ///////////
 
 		actionOpen: function(e){
