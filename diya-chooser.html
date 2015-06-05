@@ -1,288 +1,228 @@
-<link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-dialog/paper-dialog.html">
-<link rel="import" href="../paper-input/paper-input.html">
-<link rel="import" href="../paper-fab/paper-fab.html">
-<link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+<link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
 
-<polymer-element name="diya-chooser" attributes="diya name">
+<script type="text/javascript" src="bower_components/diya-sdk/dist/diya-sdk.js"></script>
+
+
+<polymer-element name="diya-chooser" attributes="selector">
 	<template>
+		<style>
 
-		<paper-button on-tap="{{actionOpen}}">
-			{{selectedSetting?selectedSetting.addr:'Select diya...'}}
-		</paper-button>
+			:host{
+				display: flex;
+				flex-direction: column;
+				padding: 10px;
+			}
 
-		<paper-dialog id="chooserDialog" heading="Select a diya-node instance">
+			h3{
+				text-align: center;
+				margin: -10px;
+				margin-bottom: 10px;
+				background: rgb(1, 145, 197);
+				color: white;
+			}
 
-			<style>
-				#content{
-					width: 80vw;
-					display: flex;
-					flex-direction: row;
-				}
+			#content{
+				width: 100%;
 
-				#content #network{
-					margin-right: 5px;
-					padding-right: 5px;
-					border-right: 1px solid gray;
-				}
+				flex: 1;
 
-				@media screen and (max-aspect-ratio: 13/9){
-					
-					paper-dialog{
-						margin: 10px;
-					}
+				display: flex;
+				flex-direction: row;
+				justify-content: center;
+			}
 
-					#content{
-						width: 100%;
-						height: 75vh;
-						flex-direction: column;
-						justify-content: flex-start;
-					}
+			#servers{
+				flex: 1;
+				border-right: 1px dashed gray;
+				padding-right: 10px;
 
-					#content #network{
-						border-right: 0px;
-					}
+			}
 
-				}
+			#nodes{
+				flex: 1;
+				padding-left: 10px;
+			}
 
-				
-				.btnConnect{
-					background: rgb(1, 145, 197);
-				}
+			#serverInputSection{
 
-				.btnDelete{
-					background: white;
-					color: gray;
-				}
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: left;
+			}
 
-				#content .title{
-					display: flex;
-					flex-direction: row;
-					align-items: center;
-					justify-content: left;
-				}
+			.serverEntry{
+				display: flex;
+				align-items: center;
+				border-radius: 0px 30px 30px 0px;
+				padding: 5px;
+			}
 
-				paper-toast{
-					left: auto;
-					right: auto;
-					bottom: 100px;
-				}
+			.serverEntry p{
+				margin: 0px;
+			}
 
-			</style>
+			.connected{
+				background: green;
+			}
 
-			<div id="content">
-				<section id="network" flex>
-					<h4 flex>Network</h4>
+			.unreachable{
+				background: red;
+			}
 
-					<template repeat="{{network, i in networkSettings}}">					
-						<section class="settings autoSettings" layout horizontal>
-							<p flex>{{network.name}} ({{network.addr}})</p>
-							<paper-fab 
-									class="btnConnect"
-									mini
-									icon="arrow-forward"
-									settings-id="{{i}}"
-									on-tap="{{actionSelectNetworkSettings}}">
-							</paper-fab>
-						</section>
-					</template>
+			.nodeEntry{
+				display: flex;
+				align-items: center;
+			}
+
+			.nodeEntry p{
+				margin: 10px;
+			}
+
+		</style>
+
+		<h3>Select a robot...</h3>
+
+		<div id="content">
+			<section id="servers">
+				<h4>Servers</h4>
+				<section id="serverInputSection">
+					<paper-input id="serverInput" flex label="add server..."></paper-input>
+					<paper-fab
+						icon="add"
+						mini
+						title="add server"
+						role="button"
+						on-tap="{{actionAddServer}}"
+						style="background: green">
+					</paper-fab>
 				</section>
-
-				<section id="manual" flex>
-					
-					<section class="title" flex>
-						<h4 flex>Manual settings</h4> 
-						<paper-fab 
-							icon="add"
+				<template repeat="{{server, i in servers}}">
+					<section class="serverEntry {{server.status}}">
+						<p flex>{{server.addr}}</p>
+						<paper-fab
+							icon="delete"
 							mini
-							title="Add manual settings"
+							title="add server"
 							role="button"
-							tabindex="0"
-							aria-label="Add manual settings"
-							on-tap="{{actionAddManualSettings}}"
-							style="background: green">
+							server-id="{{i}}"
+							on-tap="{{actionDeleteServer}}"
+							style="background: gray">
+						</paper-fab>
+						<paper-fab
+							icon="arrow-forward"
+							mini
+							title="add server"
+							role="button"
+							server-id="{{i}}"
+							on-tap="{{actionConnectServer}}"
+							style="background: rgb(1, 145, 197)">
 						</paper-fab>
 					</section>
+				</template>
+			</section>
 
-					<template repeat="{{manual, i in manualSettings}}">
-						<section class="settings manualSettings" layout horizontal>
-							<paper-input flex label="DiyaNode Address" value="{{manual.addr}}"></paper-input>
-							<paper-fab 
-								mini
-								class="btnDelete"
-								icon="delete"
-								on-tap="{{actionDeleteManualSettings}}"
-								settings-id="{{i}}">
-							</paper-fab>
-							<paper-fab 
-								mini
-								class="btnConnect"
-								icon="arrow-forward"
-								on-tap="{{actionSelectManualSettings}}"
-								settings-id="{{i}}">
-							</paper-fab>
-						</section>
-					</template>
-
-				</section>
-				<paper-toast duration="3000" id="toastCannotConnect" text="Cannot connect to {{selectedSetting.addr}} !"></paper-toast>
-				<paper-toast duration="3000" id="toastAlreadyConnected" text="Already connected to {{selectedSetting.addr}} !"></paper-toast>
-			</div>
-
-			
-
-		</paper-dialog>
+			<section id="nodes">
+				<h4>Robots</h4>
+				<template repeat="{{node, i in nodes}}">
+					<section class="nodeEntry">
+						<p flex>{{node}}</p>
+						<paper-checkbox node-id="{{i}}"></paper-checkbox>
+					</section>
+				</template>
+			</section>
+		</div>
 
 	</template>
-
 	<script>
-	Polymer({
-		ready: function(){
-			this.manualSettings = [];
-			this.retrieveSettings();
-			
-			this._disconnectCurrent = false;
+		Polymer({
+			ready: function(){
+				var that = this;
 
-			this.networkSettings = diya.discover.availableDiyas();
-			diya.discover.start();
-		},
+				this.nodes = [];
+				this.servers = [];
 
-		retrieveSettings: function(){
-			var savedManualSettingsStr = localStorage.getItem("diya.chooser.manual");
+				d1(/.*/).listen()
+					.on('peer-connected', function(peerId){
+						that.addNode(peerId);
+					})
+					.on('peer-disconnected', function(peerId){
+						that.removeNode(peerId);
+					});
 
-			if(savedManualSettingsStr){
-				try{
-					var savedManualSettings = JSON.parse(savedManualSettingsStr);
-
-					for(var i=0;i<savedManualSettings.length; i++){
-						this.manualSettings.push(savedManualSettings[i]);
-					}
-				}catch(e){
-
-				}
-			}
-		},
-
-		saveSettings: function(){
-			localStorage.setItem("diya.chooser.manual", JSON.stringify(this.manualSettings));
-		},
-
-		toggleChooser: function(){
-			this.$.chooserDialog.toggle();
-		},
-
-		hideChooser: function(){
-			this.$.chooserDialog.opened = false;
-		},
-
-		displayChooser: function(){
-			this.$.chooserDialog.opened = true;
-		},
-
-		addManualSettings: function(){
-			this.manualSettings.push({addr: "127.0.0.1:1234"});
-			this.manualSettings.push({addr: "10.42.0.1:1234"});
-		},
-
-		removeManualSettings: function(id){
-			this.manualSettings.splice(id, 1);
-			this.saveSettings();
-		},
-
-		connect: function(setting, reconnect){
-			var that = this;
-
-			if(this.diya && this.diya.connected()){
-				if(this.selectedSetting === setting){
-					this.$.toastAlreadyConnected.opened = true;
-					return ;	
-				} 
-				else this.diya.disconnect();
-			} 
-			this.selectedSetting = setting;
-
-
-			var diyaClient = new diya.DiyaClient("ws://"+setting.addr, "admin", "pass");
-			
-
-			diyaClient.createSession(function(node){
-				that.diyaConnected(node, setting);
 			},
-			function(err){
-				that.$.toastCannotConnect.opened = true;
-				if(reconnect) {
-					setTimeout(function(){
-						that.connect(setting, reconnect);
-					}, 1000);
+
+			addNode: function(dn){
+				for(var i=0;i<this.nodes.length;i++){
+					if(this.nodes[i] === dn) return false;
 				}
-			});
-		},
+				this.nodes.push(dn);
+				return true;
+			},
 
-		diyaConnected: function(node, setting){
-			var that = this;
-			this.diya = node;
+			removeNode: function(dn){
+				for(var i=0;i<this.nodes.length;i++){
+					if(this.nodes[i] === dn) {
+						this.nodes.splice(i, 1);
+						return true;
+					}
+				}
+				return false;
+			},
 
-			this.saveSettings();
 
-			this.diya.closeCallback(function(){
-				that.diyaDisconnected(node, setting)
-			});
+			addServer: function(addr){
+				this.servers.push(addr);
+			},
 
-			this.hideChooser();
-		},
+			removeServer: function(index){
+				this.servers.splice(index, 1);
+			},
 
-		diyaDisconnected: function(node, setting){
-			this.diya = null;
-			
-			if(this._disconnectCurrent) return ;
+			connectServer: function(index){
+				var that = this;
 
-			if(this.selectedSetting === setting){
-				this.connect(setting, true);
+				this.servers.forEach(function(s){
+					s.status = 'disconnected';
+				});
+
+				d1.connect('ws://'+this.servers[index].addr).then(function(){
+					that.onServerConnected(index);
+				}).catch(function(err){
+					console.log(err);
+					that.onServerConnectionFailed(index);
+				});
+			},
+
+			onServerConnected: function(index){
+				this.servers[index].status = 'connected';
+			},
+
+			onServerConnectionFailed: function(index){
+				this.servers[index].status = 'unreachable';
+			},
+
+			actionAddServer: function(evt){
+				var serverAddr = this.$.serverInput.value;
+				this.addServer({addr: serverAddr, status: 'disconnected'});
+			},
+
+			actionDeleteServer: function(evt){
+				var index = parseInt(evt.target.attributes['server-id'].value);
+				this.removeServer(index);
+				d1.disconnect();
+			},
+
+			actionConnectServer: function(evt){
+				var index = parseInt(evt.target.attributes['server-id'].value);
+				this.connectServer(index);
 			}
-		},
-		
-		disconnectCurrent: function(){
-			this._disconnectCurrent = true;
-			if(this.diya){
-				this.diya.disconnect();
-			}
-		},
-		
-		connectCurrent: function(){
-			this._disconnectCurrent = false;
-			if(this.selectedSetting === undefined) return ;
-			this.connect(this.selectedSetting, true);
-		},
-		
-		////////// ACTION LISTENERS ///////////
-
-		actionOpen: function(e){
-			this.toggleChooser();
-		},
-
-		actionAddManualSettings: function(e){
-			this.addManualSettings();
-		},
-
-		actionSelectManualSettings: function(e){
-			var settingId = parseInt(e.target.attributes["settings-id"].value);
-			var setting = this.manualSettings[settingId];
-			
-			this.connect(setting);
-		},
-
-		actionDeleteManualSettings: function(e){
-			var settingId = parseInt(e.target.attributes["settings-id"].value);
-			this.removeManualSettings(settingId);
-		},
-
-		actionSelectNetworkSettings: function(e){
-			var settingId = parseInt(e.target.attributes["settings-id"].value);
-			var setting = this.networkSettings[settingId];
-
-			this.connect(setting);
-		}
-	});
+		});
 	</script>
+
+
+
 </polymer-element>

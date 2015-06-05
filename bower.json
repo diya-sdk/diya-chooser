@@ -28,6 +28,8 @@
     "paper-dialog": "Polymer/paper-dialog#~0.5.5",
     "paper-input": "Polymer/paper-input#~0.5.5",
     "paper-fab": "Polymer/paper-fab#~0.5.5",
-    "paper-toast": "Polymer/paper-toast#~0.5.5"
+    "paper-toast": "Polymer/paper-toast#~0.5.5",
+    "diya-sdk": "partnering/diya-sdk#network-ng",
+    "paper-checkbox": "Polymer/paper-checkbox#0.5"
   }
 }

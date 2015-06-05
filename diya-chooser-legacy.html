@@ -1,0 +1,288 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
+<link rel="import" href="bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+<link rel="import" href="bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="bower_components/paper-toast/paper-toast.html">
+
+<polymer-element name="diya-chooser" attributes="diya name">
+	<template>
+
+		<paper-button on-tap="{{actionOpen}}">
+			{{selectedSetting?selectedSetting.addr:'Select diya...'}}
+		</paper-button>
+
+		<paper-dialog id="chooserDialog" heading="Select a diya-node instance">
+
+			<style>
+				#content{
+					width: 80vw;
+					display: flex;
+					flex-direction: row;
+				}
+
+				#content #network{
+					margin-right: 5px;
+					padding-right: 5px;
+					border-right: 1px solid gray;
+				}
+
+				@media screen and (max-aspect-ratio: 13/9){
+
+					paper-dialog{
+						margin: 10px;
+					}
+
+					#content{
+						width: 100%;
+						height: 75vh;
+						flex-direction: column;
+						justify-content: flex-start;
+					}
+
+					#content #network{
+						border-right: 0px;
+					}
+
+				}
+
+
+				.btnConnect{
+					background: rgb(1, 145, 197);
+				}
+
+				.btnDelete{
+					background: white;
+					color: gray;
+				}
+
+				#content .title{
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					justify-content: left;
+				}
+
+				paper-toast{
+					left: auto;
+					right: auto;
+					bottom: 100px;
+				}
+
+			</style>
+
+			<div id="content">
+				<section id="network" flex>
+					<h4 flex>Network</h4>
+
+					<template repeat="{{network, i in networkSettings}}">
+						<section class="settings autoSettings" layout horizontal>
+							<p flex>{{network.name}} ({{network.addr}})</p>
+							<paper-fab
+									class="btnConnect"
+									mini
+									icon="arrow-forward"
+									settings-id="{{i}}"
+									on-tap="{{actionSelectNetworkSettings}}">
+							</paper-fab>
+						</section>
+					</template>
+				</section>
+
+				<section id="manual" flex>
+
+					<section class="title" flex>
+						<h4 flex>Manual settings</h4>
+						<paper-fab
+							icon="add"
+							mini
+							title="Add manual settings"
+							role="button"
+							tabindex="0"
+							aria-label="Add manual settings"
+							on-tap="{{actionAddManualSettings}}"
+							style="background: green">
+						</paper-fab>
+					</section>
+
+					<template repeat="{{manual, i in manualSettings}}">
+						<section class="settings manualSettings" layout horizontal>
+							<paper-input flex label="DiyaNode Address" value="{{manual.addr}}"></paper-input>
+							<paper-fab
+								mini
+								class="btnDelete"
+								icon="delete"
+								on-tap="{{actionDeleteManualSettings}}"
+								settings-id="{{i}}">
+							</paper-fab>
+							<paper-fab
+								mini
+								class="btnConnect"
+								icon="arrow-forward"
+								on-tap="{{actionSelectManualSettings}}"
+								settings-id="{{i}}">
+							</paper-fab>
+						</section>
+					</template>
+
+				</section>
+				<paper-toast duration="3000" id="toastCannotConnect" text="Cannot connect to {{selectedSetting.addr}} !"></paper-toast>
+				<paper-toast duration="3000" id="toastAlreadyConnected" text="Already connected to {{selectedSetting.addr}} !"></paper-toast>
+			</div>
+
+
+
+		</paper-dialog>
+
+	</template>
+
+	<script>
+	Polymer({
+		ready: function(){
+			this.manualSettings = [];
+			this.retrieveSettings();
+
+			this._disconnectCurrent = false;
+
+			this.networkSettings = diya.discover.availableDiyas();
+			diya.discover.start();
+		},
+
+		retrieveSettings: function(){
+			var savedManualSettingsStr = localStorage.getItem("diya.chooser.manual");
+
+			if(savedManualSettingsStr){
+				try{
+					var savedManualSettings = JSON.parse(savedManualSettingsStr);
+
+					for(var i=0;i<savedManualSettings.length; i++){
+						this.manualSettings.push(savedManualSettings[i]);
+					}
+				}catch(e){
+
+				}
+			}
+		},
+
+		saveSettings: function(){
+			localStorage.setItem("diya.chooser.manual", JSON.stringify(this.manualSettings));
+		},
+
+		toggleChooser: function(){
+			this.$.chooserDialog.toggle();
+		},
+
+		hideChooser: function(){
+			this.$.chooserDialog.opened = false;
+		},
+
+		displayChooser: function(){
+			this.$.chooserDialog.opened = true;
+		},
+
+		addManualSettings: function(){
+			this.manualSettings.push({addr: "127.0.0.1:1234"});
+			this.manualSettings.push({addr: "10.42.0.1:1234"});
+		},
+
+		removeManualSettings: function(id){
+			this.manualSettings.splice(id, 1);
+			this.saveSettings();
+		},
+
+		connect: function(setting, reconnect){
+			var that = this;
+
+			if(this.diya && this.diya.connected()){
+				if(this.selectedSetting === setting){
+					this.$.toastAlreadyConnected.opened = true;
+					return ;
+				}
+				else this.diya.disconnect();
+			}
+			this.selectedSetting = setting;
+
+
+			var diyaClient = new diya.DiyaClient("ws://"+setting.addr, "admin", "pass");
+
+
+			diyaClient.createSession(function(node){
+				that.diyaConnected(node, setting);
+			},
+			function(err){
+				that.$.toastCannotConnect.opened = true;
+				if(reconnect) {
+					setTimeout(function(){
+						that.connect(setting, reconnect);
+					}, 1000);
+				}
+			});
+		},
+
+		diyaConnected: function(node, setting){
+			var that = this;
+			this.diya = node;
+
+			this.saveSettings();
+
+			this.diya.closeCallback(function(){
+				that.diyaDisconnected(node, setting)
+			});
+
+			this.hideChooser();
+		},
+
+		diyaDisconnected: function(node, setting){
+			this.diya = null;
+
+			if(this._disconnectCurrent) return ;
+
+			if(this.selectedSetting === setting){
+				this.connect(setting, true);
+			}
+		},
+
+		disconnectCurrent: function(){
+			this._disconnectCurrent = true;
+			if(this.diya){
+				this.diya.disconnect();
+			}
+		},
+
+		connectCurrent: function(){
+			this._disconnectCurrent = false;
+			if(this.selectedSetting === undefined) return ;
+			this.connect(this.selectedSetting, true);
+		},
+
+		////////// ACTION LISTENERS ///////////
+
+		actionOpen: function(e){
+			this.toggleChooser();
+		},
+
+		actionAddManualSettings: function(e){
+			this.addManualSettings();
+		},
+
+		actionSelectManualSettings: function(e){
+			var settingId = parseInt(e.target.attributes["settings-id"].value);
+			var setting = this.manualSettings[settingId];
+
+			this.connect(setting);
+		},
+
+		actionDeleteManualSettings: function(e){
+			var settingId = parseInt(e.target.attributes["settings-id"].value);
+			this.removeManualSettings(settingId);
+		},
+
+		actionSelectNetworkSettings: function(e){
+			var settingId = parseInt(e.target.attributes["settings-id"].value);
+			var setting = this.networkSettings[settingId];
+
+			this.connect(setting);
+		}
+	});
+	</script>
+</polymer-element>
