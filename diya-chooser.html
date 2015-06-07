@@ -2,6 +2,7 @@
 <link rel="import" href="bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="bower_components/paper-input/paper-input.html">
 <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
 
 <script type="text/javascript" src="bower_components/diya-sdk/dist/diya-sdk.js"></script>
 
@@ -20,8 +21,8 @@
 				text-align: center;
 				margin: -10px;
 				margin-bottom: 10px;
-				background: rgb(1, 145, 197);
-				color: white;
+				padding-top: 10px;
+				font-size: 1.4em;
 			}
 
 			#content{
@@ -35,8 +36,9 @@
 			}
 
 			#servers{
+				display: flex;
+				flex-direction: column;
 				flex: 1;
-				border-right: 1px dashed gray;
 				padding-right: 10px;
 
 			}
@@ -54,15 +56,28 @@
 				justify-content: left;
 			}
 
-			.serverEntry{
+			#serverEntries{
+				overflow: auto;
+				flex: 1;
+
+			}
+
+			.serverEntry, .nodeEntry{
 				display: flex;
 				align-items: center;
 				border-radius: 0px 30px 30px 0px;
-				padding: 5px;
+				margin: 5px;
+				box-shadow: 0px 0px 4px #555;
+				background: lightgray;
 			}
 
 			.serverEntry p{
 				margin: 0px;
+				margin-left: 5px;
+			}
+
+			.disconnected{
+				background: gray;
 			}
 
 			.connected{
@@ -73,19 +88,118 @@
 				background: red;
 			}
 
-			.nodeEntry{
-				display: flex;
-				align-items: center;
-			}
 
 			.nodeEntry p{
 				margin: 10px;
 			}
 
+			.nodeEntry paper-checkbox{
+				margin-right: 10px;
+
+			}
+
+			paper-checkbox::shadow #ink[checked] {
+				color: rgb(1, 145, 197);
+			}
+
+			paper-checkbox::shadow #checkbox.checked {
+				background: rgb(1, 145, 197);
+			}
+
+			#footer{
+				display: flex;
+				border-top: 1px solid lightgray;
+				height: 60px;
+				justify-content: space-between;
+			}
+
+			#auth{
+				display: flex;
+				align-items: center;
+				justify-content: flex-start;
+
+			}
+
+			#userInput{
+				margin-right: 10px;
+			}
+
+			.authenticated{
+				background: green;
+			}
+
+			.notAuthenticated{
+				background: gray;
+			}
+
+			.cannotAuthenticate{
+				background: red;
+			}
+
+			#authenticatedMsg{
+				flex: 1;
+				display: flex;
+			}
+
+			#authenticatedMsg div{
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				background: lightgray;
+				border-radius: 30px;
+			}
+
+			#authenticatedMsg p{
+				margin: 0px;
+				margin-left: 20px;
+				margin-right: 10px;
+
+				font-size: 1.2em;
+			}
+
+			#status{
+				display: flex;
+				justify-content: flex-end;
+				align-self: center;
+				flex: 1;
+			}
+
+			#select{
+				margin: 0px;
+				padding: 0px;
+				border-radius: 30px;
+				background: lightgray;
+				display: flex;
+				justify-content: flex-end;
+				align-items: center;
+			}
+
+			#select p{
+				margin: 0px;
+				margin-right: 10px;
+				margin-left: 20px;
+				font-size: 1.2em;
+				padding: 0px;
+			}
+
+			@media screen and (max-device-width: 480px){
+				#content, #auth, #footer{
+					flex-direction: column;
+				}
+
+				#footer{
+					height: auto;
+					align-items: stretch;
+				}
+
+				#status{
+					align-self: stretch;
+					margin-top: 10px;
+				}
+
+			}
+
 		</style>
-
-		<h3>Select a robot...</h3>
-
 		<div id="content">
 			<section id="servers">
 				<h4>Servers</h4>
@@ -100,41 +214,93 @@
 						style="background: green">
 					</paper-fab>
 				</section>
-				<template repeat="{{server, i in servers}}">
-					<section class="serverEntry {{server.status}}">
-						<p flex>{{server.addr}}</p>
-						<paper-fab
-							icon="delete"
-							mini
-							title="add server"
-							role="button"
-							server-id="{{i}}"
-							on-tap="{{actionDeleteServer}}"
-							style="background: gray">
-						</paper-fab>
-						<paper-fab
-							icon="arrow-forward"
-							mini
-							title="add server"
-							role="button"
-							server-id="{{i}}"
-							on-tap="{{actionConnectServer}}"
-							style="background: rgb(1, 145, 197)">
-						</paper-fab>
-					</section>
-				</template>
+				<section id="serverEntries">
+					<template repeat="{{server, i in servers}}">
+						<section class="serverEntry">
+							<paper-fab mini class="{{server.status}}"></paper-fab>
+							<p flex>{{server.addr}}</p>
+							<paper-fab
+								icon="delete"
+								mini
+								title="add server"
+								role="button"
+								server-id="{{i}}"
+								on-tap="{{actionDeleteServer}}"
+								style="background: gray">
+							</paper-fab>
+							<paper-fab
+								icon="arrow-forward"
+								mini
+								title="add server"
+								role="button"
+								server-id="{{i}}"
+								on-tap="{{actionConnectServer}}"
+								style="background: rgb(1, 145, 197)">
+							</paper-fab>
+						</section>
+					</template>
+				</section>
 			</section>
 
 			<section id="nodes">
 				<h4>Robots</h4>
 				<template repeat="{{node, i in nodes}}">
 					<section class="nodeEntry">
-						<p flex>{{node}}</p>
-						<paper-checkbox node-id="{{i}}"></paper-checkbox>
+						<paper-fab mini class="{{node.authenticated}}"></paper-fab>
+						<p flex>{{node.name}}</p>
+						<paper-checkbox node-id="{{i}}" checked="{{node.selected}}"></paper-checkbox>
 					</section>
 				</template>
 			</section>
 		</div>
+		<section id="footer">
+			<template if="{{!authenticated}}">
+				<section id="auth">
+					<paper-input-decorator label="username..." floatinglabel>
+		   				<input id="userInput" is="core-input" />
+					</paper-input-decorator>
+					<paper-input-decorator label="password..." floatinglabel>
+		   				<input id="passwordInput" is="core-input" type="password" />
+					</paper-input-decorator>
+					<paper-fab
+						icon="arrow-forward"
+						mini
+						title="Authenticate"
+						role="button"
+						on-tap="{{actionAuthenticate}}"
+						style="background: rgb(1, 145, 197)">
+					</paper-fab>
+				</section>
+			</template>
+			<section id="status">
+				<template if="{{authenticated}}">
+					<section id="authenticatedMsg">
+						<div>
+							<p>logout</p>
+							<paper-fab
+								icon="clear"
+								mini
+								title="Deauthenticate"
+								role="button"
+								on-tap="{{actionDeauthenticate}}"
+								style="background: gray">
+							</paper-fab>
+						</div>
+					</section>
+				</template>
+				<div id="select">
+					<p>select</p>
+					<paper-fab
+						mini
+						icon="check"
+						title="Deauthenticate"
+						role="button"
+						on-tap="{{actionSelect}}"
+						style="background: green">
+					</paper-fab>
+				</div>
+			</section>
+		</section>
 
 	</template>
 	<script>
@@ -144,6 +310,10 @@
 
 				this.nodes = [];
 				this.servers = [];
+
+				this.authenticated = false;
+
+				this.selector = null;
 
 				d1(/.*/).listen()
 					.on('peer-connected', function(peerId){
@@ -155,17 +325,21 @@
 
 			},
 
+			/////////////////////////////////////////////////////////////
+			/////////////// Node related methods ////////////////////////
+			/////////////////////////////////////////////////////////////
+
 			addNode: function(dn){
 				for(var i=0;i<this.nodes.length;i++){
-					if(this.nodes[i] === dn) return false;
+					if(this.nodes[i].name === dn) return false;
 				}
-				this.nodes.push(dn);
+				this.nodes.push({name: dn, authenticated: 'notAuthenticated', selected: false});
 				return true;
 			},
 
 			removeNode: function(dn){
 				for(var i=0;i<this.nodes.length;i++){
-					if(this.nodes[i] === dn) {
+					if(this.nodes[i].name === dn) {
 						this.nodes.splice(i, 1);
 						return true;
 					}
@@ -173,9 +347,26 @@
 				return false;
 			},
 
+			authenticate: function(user, password, selectedNodes){
+				var that = this;
+
+				d1(selectedNodes).auth(user, password, function(nodeId, authenticated){
+					that.authenticated = true;
+				});
+			},
+
+
+			/////////////////////////////////////////////////////////////
+			////////////////////// Server related methods ///////////////
+			/////////////////////////////////////////////////////////////
+
 
 			addServer: function(addr){
-				this.servers.push(addr);
+				for(var i=0;i<this.servers.length; i++){
+					if(this.servers[i].addr === addr) return false;
+				}
+				this.servers.push({addr: addr, status: 'disconnected'});
+				return true;
 			},
 
 			removeServer: function(index){
@@ -184,6 +375,8 @@
 
 			connectServer: function(index){
 				var that = this;
+
+				that.authenticated = false;
 
 				this.servers.forEach(function(s){
 					s.status = 'disconnected';
@@ -199,26 +392,51 @@
 
 			onServerConnected: function(index){
 				this.servers[index].status = 'connected';
+				this.connectedServer = index;
 			},
 
 			onServerConnectionFailed: function(index){
 				this.servers[index].status = 'unreachable';
 			},
 
+
+			/////////////////////////////////////////////////////////////
+			///////////////////// Action Handlers ///////////////////////
+			/////////////////////////////////////////////////////////////
+
 			actionAddServer: function(evt){
 				var serverAddr = this.$.serverInput.value;
-				this.addServer({addr: serverAddr, status: 'disconnected'});
+				this.addServer(serverAddr);
 			},
 
 			actionDeleteServer: function(evt){
 				var index = parseInt(evt.target.attributes['server-id'].value);
 				this.removeServer(index);
-				d1.disconnect();
+				if(this.connectedServer === index) d1.disconnect();
 			},
 
 			actionConnectServer: function(evt){
 				var index = parseInt(evt.target.attributes['server-id'].value);
 				this.connectServer(index);
+			},
+
+			actionAuthenticate: function(evt){
+				var user = this.$.userInput.value;
+				var password = this.$.passwordInput.value;
+				var selectedNodes = this.nodes.map(function(n){return n.name});
+
+				this.authenticate(user, password, selectedNodes);
+			},
+
+			actionDeauthenticate: function(evt){
+				this.authenticated = false;
+				d1.deauthenticate();
+				this.selector = null;
+			},
+
+			actionSelect: function(evt){
+				//creates an array of the names of the selected robots
+				this.selector = this.nodes.filter(function(n){return n.selected;}).map(function(n){return n.name;});
 			}
 		});
 	</script>
