@@ -6,6 +6,15 @@
 
 <script type="text/javascript" src="bower_components/diya-sdk/dist/diya-sdk.js"></script>
 
+<script type="text/javascript">
+	if (!String.prototype.startsWith) {
+		String.prototype.startsWith = function (searchString, position) {
+			position = position || 0;
+			return this.indexOf(searchString, position) === position;
+		};
+	}
+</script>
+
 
 <polymer-element name="diya-chooser" attributes="selector">
 	<template>
@@ -328,6 +337,8 @@
 				.on('peer-disconnected', function(peerId){
 					that.removeNode(peerId);
 				});
+
+				this.retrieveServerSettings();
 			},
 
 			/////////////////////////////////////////////////////////////
@@ -365,13 +376,43 @@
 			////////////////////// Server related methods ///////////////
 			/////////////////////////////////////////////////////////////
 
+			retrieveServerSettings: function(){
+				var savedServerSettingsStr = localStorage.getItem('diya.chooser.servers');
+				if(savedServerSettingsStr){
+					try{
+						var savedServerSettings = JSON.parse(savedServerSettingsStr);
+
+						if(Array.isArray(savedServerSettings)){
+							for(var i=0;i<savedServerSettings.length;i++){
+								this.addServer(savedServerSettings[i]);
+							}
+						}
+					}catch(e){
+						//ignore settings
+					}
+				}
+			},
+
+			saveServerSettings: function(){
+				var serverSettings = this.servers.map(function(s){return s.addr});
+				var serverSettingsStr = JSON.stringify(serverSettings);
+
+				localStorage.setItem('diya.chooser.servers', serverSettingsStr);
+			},
 
 			addServer: function(addr){
-				addr = 'ws://' + addr;
+
+				if(!addr.startsWith('ws://') && !addr.startsWith('wss://')){
+					addr = 'ws://' + addr;
+				}
+
 				for(var i=0;i<this.servers.length; i++){
 					if(this.servers[i].addr === addr) return false;
 				}
 				this.servers.push({addr: addr, status: 'disconnected'});
+
+				this.saveServerSettings();
+
 				return true;
 			},
 
@@ -380,6 +421,8 @@
 				if(server.addr === d1.currentServer())	d1.disconnect();
 
 				this.servers.splice(index, 1);
+
+				this.saveServerSettings();
 			},
 
 			getServer: function(addr){
