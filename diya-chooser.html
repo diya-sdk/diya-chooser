@@ -182,7 +182,7 @@
 				padding: 0px;
 			}
 
-			@media screen and (max-device-width: 480px){
+			@media screen and (max-device-width: 480px), screen and (orientation: portrait){
 				#content, #auth, #footer{
 					flex-direction: column;
 				}
@@ -315,14 +315,19 @@
 
 				this.selector = null;
 
-				d1(/.*/).listen()
-					.on('peer-connected', function(peerId){
-						that.addNode(peerId);
-					})
-					.on('peer-disconnected', function(peerId){
-						that.removeNode(peerId);
-					});
+				d1.on('open', function(addr){
+					that.onServerConnected(addr);
+				}).on('close', function(addr, err){
+					that.onServerDisconnected(addr, err);
+				});
 
+				d1(/.*/).listen()
+				.on('peer-connected', function(peerId){
+					that.addNode(peerId);
+				})
+				.on('peer-disconnected', function(peerId){
+					that.removeNode(peerId);
+				});
 			},
 
 			/////////////////////////////////////////////////////////////
@@ -362,6 +367,7 @@
 
 
 			addServer: function(addr){
+				addr = 'ws://' + addr;
 				for(var i=0;i<this.servers.length; i++){
 					if(this.servers[i].addr === addr) return false;
 				}
@@ -370,7 +376,17 @@
 			},
 
 			removeServer: function(index){
+				var server = this.servers[index];
+				if(server.addr === d1.currentServer())	d1.disconnect();
+
 				this.servers.splice(index, 1);
+			},
+
+			getServer: function(addr){
+				for(var i=0; i<this.servers.length; i++){
+					if(this.servers[i].addr === addr) return this.servers[i];
+				}
+				return null;
 			},
 
 			connectServer: function(index){
@@ -382,21 +398,19 @@
 					s.status = 'disconnected';
 				});
 
-				d1.connect('ws://'+this.servers[index].addr).then(function(){
-					that.onServerConnected(index);
-				}).catch(function(err){
-					console.log(err);
-					that.onServerConnectionFailed(index);
+				d1.connect(this.servers[index].addr).catch(function(err){
+					that.servers[index].status = 'unreachable';
 				});
 			},
 
-			onServerConnected: function(index){
-				this.servers[index].status = 'connected';
-				this.connectedServer = index;
+			onServerConnected: function(addr){
+				var server = this.getServer(addr);
+				if(server) server.status = 'connected';
 			},
 
-			onServerConnectionFailed: function(index){
-				this.servers[index].status = 'unreachable';
+			onServerDisconnected: function(addr){
+				var server = this.getServer(addr);
+				if(server) server.status = 'disconnected';
 			},
 
 
@@ -412,7 +426,6 @@
 			actionDeleteServer: function(evt){
 				var index = parseInt(evt.target.attributes['server-id'].value);
 				this.removeServer(index);
-				if(this.connectedServer === index) d1.disconnect();
 			},
 
 			actionConnectServer: function(evt){
