@@ -3,6 +3,7 @@
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-toast/paper-toast.html">
 
 <script type="text/javascript" src="../diya-sdk/dist/diya-sdk.js"></script>
 
@@ -16,7 +17,7 @@
 </script>
 
 
-<polymer-element name="diya-chooser" attributes="selector">
+<polymer-element name="diya-chooser" attributes="selector forceAuth">
 	<template>
 		<style>
 
@@ -311,9 +312,14 @@
 			</section>
 		</section>
 
+		<paper-toast id="authToast" text="You must be authenticated !"></paper-toast>
+
 	</template>
 	<script>
 		Polymer({
+
+			forceAuth: false,
+
 			ready: function(){
 				var that = this;
 
@@ -499,6 +505,11 @@
 			},
 
 			actionSelect: function(evt){
+				if(this.forceAuth && !this.authenticated) {
+					this.$.authToast.show();
+					return ;
+				}
+
 				//creates an array of the names of the selected robots
 				this.selector = this.nodes.filter(function(n){return n.selected;}).map(function(n){return n.name;});
 				this.hide();
