@@ -17,7 +17,7 @@
 </script>
 
 
-<polymer-element name="diya-chooser" attributes="selector forceAuth">
+<polymer-element name="diya-chooser" attributes="selector forceAuth noAuth">
 	<template>
 		<style>
 
@@ -265,7 +265,7 @@
 			</section>
 		</div>
 		<section id="footer">
-			<template if="{{!authenticated}}">
+			<template if="{{!authenticated&&!noAuth}}">
 				<section id="auth">
 					<paper-input-decorator label="username..." floatinglabel>
 		   				<input id="userInput" is="core-input" />
@@ -320,6 +320,7 @@
 		Polymer({
 
 			forceAuth: false,
+			noAuth: false,
 
 			ready: function(){
 				var that = this;

@@ -1,0 +1,86 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../core-overlay/core-overlay.html">
+
+<link rel="import" href="diya-chooser.html">
+
+
+<polymer-element name="diya-chooser-dialog" attributes="selector forceAuth noAuth">
+	<template>
+		<paper-button on-tap="{{actionToggle}}">Select diya...</paper-button>
+
+		<core-overlay id="dialog">
+			<style>
+
+				core-overlay{
+					box-shadow: 0px 0px 15px #555;
+					padding: 20px;
+					background: white;
+					display: flex;
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+					min-width: 70%;
+					min-height: 50%;
+				}
+
+				diya-chooser{
+					width: 90%;
+					flex: 1;
+					padding: 0px;
+					padding-bottom: 20px;
+				}
+
+				@media screen and (max-device-width: 480px), screen and (orientation: portrait){
+					core-overlay{
+						width: 100vw;
+						height: 100vh;
+						padding: 0px;
+						box-shadow: auto;
+
+					}
+
+				}
+			</style>
+			<diya-chooser selector="{{selector}}" forceAuth="{{forceAuth}}" noAuth="{{noAuth}}"></diya-chooser>
+		</core-overlay>
+	</template>
+
+
+
+	<script>
+		Polymer({
+
+			forceAuth: false,
+			noAuth: false,
+
+			ready: function(){
+
+			},
+
+			toggle: function(){
+				this.$.dialog.toggle();
+			},
+
+			show: function(){
+				this.$.dialog.opened = true;
+			},
+
+			hide: function(){
+				this.$.dialog.opened = false;
+			},
+
+			///////////////////////////////////////
+			////////// Action handlers ////////////
+			///////////////////////////////////////
+
+			selectorChanged: function(){
+				this.hide();
+			},
+
+			actionToggle: function(){
+				this.toggle();
+			}
+		});
+	</script>
+</polymer-element>
