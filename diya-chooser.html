@@ -508,7 +508,7 @@
 			},
 
 			actionNodeSelected: function(evt){
-				if(!single) return ;
+				if(!this.single) return ;
 
 				//In single mode, only one node can be selected at a time
 				var nodeId = parseInt(evt.target.attributes["node-id"].value);
