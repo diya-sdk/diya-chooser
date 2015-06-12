@@ -5,7 +5,7 @@
 <link rel="import" href="diya-chooser.html">
 
 
-<polymer-element name="diya-chooser-dialog" attributes="selector forceAuth noAuth">
+<polymer-element name="diya-chooser-dialog" attributes="selector forceAuth noAuth single">
 	<template>
 		<paper-button on-tap="{{actionToggle}}">Select diya...</paper-button>
 
@@ -43,7 +43,7 @@
 				}
 			</style>
 			<paper-button></paper-button>
-			<diya-chooser selector="{{selector}}" forceAuth="{{forceAuth}}" noAuth="{{noAuth}}"></diya-chooser>
+			<diya-chooser selector="{{selector}}" single="{{single}}" forceAuth="{{forceAuth}}" noAuth="{{noAuth}}"></diya-chooser>
 		</core-overlay>
 	</template>
 
@@ -54,6 +54,7 @@
 
 			forceAuth: false,
 			noAuth: false,
+			single: false,
 
 			ready: function(){
 

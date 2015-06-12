@@ -17,7 +17,7 @@
 </script>
 
 
-<polymer-element name="diya-chooser" attributes="selector forceAuth noAuth">
+<polymer-element name="diya-chooser" attributes="selector single forceAuth noAuth">
 	<template>
 		<style>
 
@@ -259,7 +259,7 @@
 					<section class="nodeEntry">
 						<paper-fab mini class="{{node.authenticated}}"></paper-fab>
 						<p flex>{{node.name}}</p>
-						<paper-checkbox node-id="{{i}}" checked="{{node.selected}}"></paper-checkbox>
+						<paper-checkbox node-id="{{i}}" checked="{{node.selected}}" on-tap="{{actionNodeSelected}}"></paper-checkbox>
 					</section>
 				</template>
 			</section>
@@ -321,6 +321,7 @@
 
 			forceAuth: false,
 			noAuth: false,
+			single: false,
 
 			ready: function(){
 				var that = this;
@@ -504,6 +505,16 @@
 				this.authenticated = false;
 				d1.deauthenticate();
 				this.selector = null;
+			},
+
+			actionNodeSelected: function(evt){
+				if(!single) return ;
+
+				//In single mode, only one node can be selected at a time
+				var nodeId = parseInt(evt.target.attributes["node-id"].value);
+				for(var i=0; i<this.nodes.length; i++) {
+					if(i !== nodeId) this.nodes[i].selected = false;
+				}
 			},
 
 			actionSelect: function(evt){
