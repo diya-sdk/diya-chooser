@@ -268,10 +268,10 @@
 			<template if="{{!authenticated&&!noAuth}}">
 				<section id="auth">
 					<paper-input-decorator label="username..." floatinglabel>
-		   				<input id="userInput" is="core-input" />
+		   				<input id="userInput" is="core-input" value="{{user}}" />
 					</paper-input-decorator>
 					<paper-input-decorator label="password..." floatinglabel>
-		   				<input id="passwordInput" is="core-input" type="password" />
+		   				<input id="passwordInput" is="core-input" type="password" value="{{password}}" />
 					</paper-input-decorator>
 					<paper-fab
 						icon="arrow-forward"
@@ -314,6 +314,7 @@
 		</section>
 
 		<paper-toast id="authToast" text="You must be authenticated !"></paper-toast>
+		<paper-toast id="authFailedToast" text="Your username or password is wrong !"></paper-toast>
 
 	</template>
 	<script>
@@ -328,6 +329,9 @@
 
 				this.nodes = [];
 				this.servers = [];
+
+				this.user = null;
+				this.password = null;
 
 				this.authenticated = false;
 
@@ -348,6 +352,7 @@
 				});
 
 				this.retrieveServerSettings();
+				this.retrieveUserSettings();
 			},
 
 			show: function(){
@@ -384,7 +389,12 @@
 				var that = this;
 
 				d1(selectedNodes).auth(user, password, function(nodeId, authenticated){
-					that.authenticated = true;
+					if(authenticated){
+						that.saveUserSettings();
+						that.authenticated = true;
+					}else if(!that.authenticated){
+						that.$.authFailedToast.show();
+					}
 				});
 			},
 
@@ -415,6 +425,16 @@
 				var serverSettingsStr = JSON.stringify(serverSettings);
 
 				localStorage.setItem('diya.chooser.servers', serverSettingsStr);
+			},
+
+			retrieveUserSettings: function(){
+				this.user = localStorage.getItem('diya.chooser.user');
+				this.password = localStorage.getItem('diya.chooser.password');
+			},
+
+			saveUserSettings: function(user, password){
+				localStorage.setItem('diya.chooser.user', user);
+				localStorage.setItem('diya.chooser.password', password);
 			},
 
 			addServer: function(addr){
