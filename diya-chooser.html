@@ -432,9 +432,9 @@
 				this.password = localStorage.getItem('diya.chooser.password');
 			},
 
-			saveUserSettings: function(user, password){
-				localStorage.setItem('diya.chooser.user', user);
-				localStorage.setItem('diya.chooser.password', password);
+			saveUserSettings: function(){
+				localStorage.setItem('diya.chooser.user', this.user);
+				localStorage.setItem('diya.chooser.password', this.password);
 			},
 
 			addServer: function(addr){
