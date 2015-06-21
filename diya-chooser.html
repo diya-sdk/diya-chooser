@@ -215,7 +215,7 @@
 			<section id="servers">
 				<h4>Servers</h4>
 				<section id="serverInputSection">
-					<paper-input id="serverInput" flex label="add server..."></paper-input>
+					<paper-input id="serverInput" flex label="add server..." on-tap="{{actionPrompt}}"></paper-input>
 					<paper-fab
 						icon="add"
 						mini
@@ -268,10 +268,10 @@
 			<template if="{{!authenticated&&!noAuth}}">
 				<section id="auth">
 					<paper-input-decorator label="username..." floatinglabel>
-		   				<input id="userInput" is="core-input" value="{{user}}" />
+		   				<input id="userInput" is="core-input" value="{{user}}" on-tap="{{actionPrompt}}" />
 					</paper-input-decorator>
 					<paper-input-decorator label="password..." floatinglabel>
-		   				<input id="passwordInput" is="core-input" type="password" value="{{password}}" />
+		   				<input id="passwordInput" label="password..." is="core-input" type="password" value="{{password}}" on-tap="{{actionPrompt}}" />
 					</paper-input-decorator>
 					<paper-fab
 						icon="arrow-forward"
@@ -428,8 +428,8 @@
 			},
 
 			retrieveUserSettings: function(){
-				this.user = localStorage.getItem('diya.chooser.user');
-				this.password = localStorage.getItem('diya.chooser.password');
+				this.user = localStorage.getItem('diya.chooser.user') || '';
+				this.password = localStorage.getItem('diya.chooser.password') || '';
 			},
 
 			saveUserSettings: function(){
@@ -486,6 +486,10 @@
 			onServerConnected: function(addr){
 				var server = this.getServer(addr);
 				if(server) server.status = 'connected';
+
+				if(this.user !== '' && this.password !== ''){
+					this.actionAuthenticate();
+				}
 			},
 
 			onServerDisconnected: function(addr){
@@ -545,6 +549,19 @@
 
 				//creates an array of the names of the selected robots
 				this.selector = this.nodes.filter(function(n){return n.selected;}).map(function(n){return n.name;});
+			},
+
+			actionPrompt: function(evt){
+				if(this.isMobile()){
+					var value = evt.target.value || '';
+					if(evt.target.attributes["type"] && evt.target.attributes["type"].value === 'password') value = '';
+					value = prompt('', value);
+					evt.target.value = value;
+				}
+			},
+
+			isMobile: function(){
+				return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 			}
 		});
 	</script>
