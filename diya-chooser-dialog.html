@@ -1,6 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../core-overlay/core-overlay.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
 
 <link rel="import" href="diya-chooser.html">
 
@@ -8,11 +8,9 @@
 <polymer-element name="diya-chooser-dialog" attributes="selector forceAuth noAuth single">
 	<template>
 		<paper-button on-tap="{{actionToggle}}">Select diya...</paper-button>
-
-		<core-overlay id="dialog">
 			<style>
 
-				core-overlay{
+			paper-dialog{
 					box-shadow: 0px 0px 15px #555;
 					padding: 20px;
 					background: white;
@@ -20,19 +18,21 @@
 					flex-direction: column;
 					justify-content: center;
 					align-items: center;
-					min-width: 70%;
-					min-height: 50%;
+					/*min-height: 150px;*/
+					margin: 0px;
 				}
+				paper-dialog::shadow #scroller{
+					min-height: 150px;
+					}
 
 				diya-chooser{
-					width: 90%;
+					width: 100%;
 					flex: 1;
 					padding: 0px;
-					padding-bottom: 20px;
 				}
 
 				@media screen and (max-device-width: 480px), screen and (orientation: portrait){
-					core-overlay{
+					paper-dialog{
 						width: 100vw;
 						height: 100vh;
 						padding: 0px;
@@ -42,14 +42,17 @@
 
 				}
 			</style>
-			<paper-button></paper-button>
+		<paper-dialog id="dialog" layered="false">
 			<diya-chooser selector="{{selector}}" single="{{single}}" forceAuth="{{forceAuth}}" noAuth="{{noAuth}}"></diya-chooser>
-		</core-overlay>
+		</paper-dialog>
 	</template>
 
 
 
 	<script>
+
+
+
 		Polymer({
 
 			forceAuth: false,
@@ -57,7 +60,29 @@
 			single: false,
 
 			ready: function(){
+			},
 
+			domReady: function() {
+				var that = this;
+				var orgInnerHeight = window.innerHeight;
+				test = this
+				// should addEventListener?
+				window.onresize = function() { console.log(Math.abs(orgInnerHeight - window.innerHeight) / window.innerHeight)
+					if (window.innerHeight === orgInnerHeight) {
+						// restore dialog top
+						setTimeout(function() {
+							that.$.dialog.style.height = null;
+							}, 100);
+					} else if ( Math.abs(orgInnerHeight - window.innerHeight) / window.innerHeight < 0.2 ) {
+						// overlay keyboard
+						setTimeout(function() {
+							that.$.dialog.style.top = "0px";
+							that.$.dialog.style.height = "100px";
+							}, 100);
+					} else {
+						// do nothing
+					}
+				};
 			},
 
 			toggle: function(){
