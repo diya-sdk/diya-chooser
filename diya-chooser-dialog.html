@@ -71,6 +71,7 @@
 					if (window.innerHeight === orgInnerHeight) {
 						// restore dialog top
 						setTimeout(function() {
+							that.$.dialog.style.top = null;
 							that.$.dialog.style.height = null;
 							}, 100);
 					} else if ( Math.abs(orgInnerHeight - window.innerHeight) / window.innerHeight < 0.2 ) {
