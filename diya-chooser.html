@@ -557,6 +557,14 @@
 					if(evt.target.attributes["type"] && evt.target.attributes["type"].value === 'password') value = '';
 					value = prompt('', value);
 					evt.target.value = value;
+
+					// quick hack to close virtual keyboard
+					// evt.target.blur(); // not working all the time, especially with input
+					test = evt.target
+					evt.target.disabled = true;
+					setTimeout(function() {
+						evt.target.disabled = false;
+					}, 10);
 				}
 			},
 
