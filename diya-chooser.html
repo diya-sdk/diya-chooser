@@ -559,8 +559,7 @@
 					evt.target.value = value;
 
 					// quick hack to close virtual keyboard
-					// evt.target.blur(); // not working all the time, especially with input
-					test = evt.target
+					// evt.target.blur(); // not working all the time, especially with input field
 					evt.target.disabled = true;
 					setTimeout(function() {
 						evt.target.disabled = false;
