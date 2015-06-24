@@ -1,5 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-fab/paper-fab.html">
 <link rel="import" href="../paper-dialog/paper-dialog.html">
 
 <link rel="import" href="diya-chooser.html">
@@ -31,6 +32,12 @@
 					padding: 0px;
 				}
 
+				paper-dialog > paper-button {
+					position: absolute;
+					top: 0px;
+					right: 0px;
+				}
+
 				@media screen and (max-device-width: 480px), screen and (orientation: portrait){
 					paper-dialog{
 						width: 100vw;
@@ -43,6 +50,10 @@
 				}
 			</style>
 		<paper-dialog id="dialog" layered="false">
+			<paper-button on-tap="{{toggle}}">
+				<paper-fab icon="close" mini title="close dialog" role="button" style="background: grey">
+				</paper-fab>
+			</paper-button>
 			<diya-chooser selector="{{selector}}" single="{{single}}" forceAuth="{{forceAuth}}" noAuth="{{noAuth}}"></diya-chooser>
 		</paper-dialog>
 	</template>
