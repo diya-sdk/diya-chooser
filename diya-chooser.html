@@ -193,7 +193,8 @@
 				padding: 0px;
 			}
 
-			@media screen and (max-width: 480px), screen and (orientation: portrait){
+			/*@media screen and (max-width: 480px), screen and (orientation: portrait){*/
+			@media screen and (max-width: 620px) {
 				#content, #auth, #footer{
 					flex-direction: column;
 				}
@@ -550,10 +551,6 @@
 				//creates an array of the names of the selected robots
 				this.selector = this.nodes.filter(function(n){return n.selected;}).map(function(n){return n.name;});
 			},
-
-			isMobile: function(){
-				return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-			}
 		});
 	</script>
 
