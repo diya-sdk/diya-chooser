@@ -30,6 +30,7 @@
     "paper-toast": "Polymer/paper-toast#~0.5.6",
     "diya-sdk": "partnering/diya-sdk",
     "paper-checkbox": "Polymer/paper-checkbox#0.5",
-    "core-overlay": "Polymer/core-overlay#~0.5.6"
+    "core-overlay": "Polymer/core-overlay#~0.5.6",
+    "paper-dialog": "Polymer/paper-dialog#~0.5.6"
   }
 }
