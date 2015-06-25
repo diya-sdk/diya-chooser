@@ -9,83 +9,78 @@
 <polymer-element name="diya-chooser-dialog" attributes="selector forceAuth noAuth single">
 	<template>
 		<paper-button on-tap="{{actionToggle}}">Select diya...</paper-button>
-			<style>
 
-			paper-dialog{
-					box-shadow: 0px 0px 15px #555;
-					padding: 20px;
-					background: white;
-					display: flex;
-					flex-direction: column;
-					justify-content: center;
-					align-items: center;
-					/*min-height: 150px;*/
-					margin: 0px;
+		<style>
+
+			paper-dialog {
+				box-shadow: 0px 0px 15px #555;
+				padding: 20px;
+				background: white;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				margin: 0px;
+			}
+
+			diya-chooser {
+				width: 100%;
+				flex: 1;
+				padding: 0px;
+			}
+
+			paper-dialog > paper-button {
+				position: absolute;
+				top: 5px;
+				right: 5px;
+				display: none;
+			}
+
+			paper-dialog > paper-button.modal {
+				display: initial ! important;
+			}
+
+			@media screen and (orientation: landscape) {
+				paper-dialog.keyboard-overlay {
+					top: 0px !important;
+					height: 100px !important; /* arbitrary value as we will never know keyboard height */
 				}
-				/*paper-dialog::shadow #scroller{
-					min-height: 150px;
-					}*/
+			}
 
-				diya-chooser{
-					width: 100%;
-					flex: 1;
-					padding: 0px;
+			@media screen and (orientation: portrait) {
+				paper-dialog.keyboard-overlay {
+					top: 0px !important;
+					height: 300px !important; /* arbitrary value as we will never know keyboard height */
+				}
+			}
+
+			@media screen and (max-width: 480px) {
+				paper-dialog {
+					width: 100vw !important;
 				}
 
+				paper-dialog::shadow #scroller {
+					max-width : initial !important;
+				}
+			}
+
+			@media screen and (max-height: 300px) {
+				paper-dialog{
+					height: 100vh !important;
+				}
+
+				paper-dialog::shadow #scroller {
+					max-height : initial !important;
+				}
+			}
+
+			@media screen and (max-height: 300px) and (max-width: 480px) {
 				paper-dialog > paper-button {
-					position: absolute;
-					top: 5px;
-					right: 5px;
-					display: none;
-				}
-
-				paper-dialog > paper-button.modal {
 					display: initial ! important;
 				}
+			}
 
-				@media screen and (orientation: landscape) {
-					paper-dialog.keyboard-overlay {
-						top: 0px !important;
-						height: 100px !important; /* arbitrary value as we will never know keyboard height */
-					}
-				}
-
-				@media screen and (orientation: portrait) {
-					paper-dialog.keyboard-overlay {
-						top: 0px !important;
-						height: 300px !important; /* arbitrary value as we will never know keyboard height */
-					}
-				}
-
-				@media screen and (max-width: 480px) {
-					paper-dialog{
-						width: 100vw !important;
-						/*box-shadow: auto;*/
-					}
-
-					paper-dialog::shadow #scroller {
-						max-width : initial !important;
-					}
-				}
-
-				@media screen and (max-height: 300px) {
-					paper-dialog{
-						height: 100vh !important; /* 100% */
-						/*padding: 0;*/
-					}
-
-					paper-dialog::shadow #scroller {
-						max-height : initial !important;
-					}
-				}
-
-				@media screen and (max-height: 300px) and (max-width: 480px) {
-					paper-dialog > paper-button {
-						display: initial ! important;
-					}
-				}
-
-			</style>
+		</style>
 		<paper-dialog id="dialog" layered="false">
 			<paper-button id="close" on-tap="{{toggle}}">
 				<paper-fab icon="close" mini title="close dialog" role="button" style="background: grey">
@@ -95,11 +90,7 @@
 		</paper-dialog>
 	</template>
 
-
-
 	<script>
-
-
 
 		Polymer({
 
@@ -118,19 +109,19 @@
 					this.$.close.className = "modal";
 				}
 
-				// original screen size
+				// original screen size (approximate value, may be changed due to rotation)
 				var orgSize = window.innerHeight * window.innerWidth;
 
 				var bOverlay = false;
 
 				window.addEventListener("resize", function() {
 					// during resize, paper-dialog's css hasn't been changed yet, so we need to delay our css
-					// get current focused
+					// get current focused element
 					var input = that.$.chooser.shadowRoot.activeElement;
 					if (input) {
 						// input is already focus so virtual kb is up
 						// guess the type of keyboard by apply threshold
-						if ( bOverlay || ( Math.abs(orgSize - window.innerHeight * window.innerWidth) / orgSize < 0.2) ) { console.log(Math.abs(orgSize - window.innerHeight * window.innerWidth) / orgSize)
+						if ( bOverlay || ( Math.abs(orgSize - window.innerHeight * window.innerWidth) / orgSize < 0.2) ) {
 							// overlay keyboard
 							bOverlay = true;
 
@@ -147,7 +138,7 @@
 							input.focus();
 						}, 10);
 					} else {
-						if (bOverlay) {console.log("reset")
+						if (bOverlay) {
 							// restore dialog css
 							// that.$.dialog.className = that.$.dialog.className.replace(/(?:^|\s)keyboard-overlay(?!\S)/g, "");
 							that.$.dialog.className = "";
