@@ -118,7 +118,7 @@
 					// during resize, paper-dialog's css hasn't been changed yet, so we need to delay our css
 					// get current focused element
 					var input = that.$.chooser.shadowRoot.activeElement;
-					if (input && input.value) {// editable content, current focus is input or paper-input
+					if (input && input.value != null) {// editable content, current focus is input or paper-input
 						// input is already focus so virtual kb is up
 						// guess the type of keyboard by apply threshold
 						if ( bOverlay || ( Math.abs(orgSize - window.innerHeight * window.innerWidth) / orgSize < 0.2) ) {
