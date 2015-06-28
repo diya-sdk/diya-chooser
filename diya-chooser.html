@@ -373,6 +373,7 @@
 					if(this.nodes[i].name === dn) return false;
 				}
 				this.nodes.push({name: dn, authenticated: 'notAuthenticated', selected: false});
+				this.displayHack();
 				return true;
 			},
 
@@ -380,10 +381,23 @@
 				for(var i=0;i<this.nodes.length;i++){
 					if(this.nodes[i].name === dn) {
 						this.nodes.splice(i, 1);
+						this.displayHack();
 						return true;
 					}
 				}
 				return false;
+			},
+
+			//Dirty Hack, Bug in Polymer : style is lost when a template repeat's underlying data changes
+			displayHack: function(){
+				var nodes = this.$.nodes.querySelectorAll('.nodeEntry');
+
+				for(var i=0;i<nodes.length; i++){
+					nodes[i].setAttribute('class', '');
+				}
+				for(var i=0;i<nodes.length; i++){
+					nodes[i].setAttribute('class', 'nodeEntry');
+				}
 			},
 
 			authenticate: function(user, password, selectedNodes){
