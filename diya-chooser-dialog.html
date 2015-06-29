@@ -114,9 +114,13 @@
 
 				var bOverlay = false;
 
+				function isMobile() {
+					return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+				}
+
 				// quick hack for virtual keyboard problem:
 				function showVK() {
-					that.async(function() {
+					if (isMobile()) that.async(function() {
 						var input = that.$.chooser.shadowRoot.activeElement;
 
 						if (input && input.value != null) {// editable content, current focus is input or paper-input
@@ -144,7 +148,7 @@
 
 				// quick hack for virtual keyboard problem:
 				function hideVK() {
-					that.async(function() {
+					if (isMobile()) that.async(function() {
 						var input = that.$.chooser.shadowRoot.activeElement;
 
 						if (input && input.value != null) {// editable content, current focus is input or paper-input
