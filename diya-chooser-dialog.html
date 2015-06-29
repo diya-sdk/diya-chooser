@@ -143,7 +143,7 @@
 								// non overlay type virtual keyboard
 							}
 						}
-					}, null, 100);
+					}, null, 500);
 				};
 
 				// quick hack for virtual keyboard problem:
@@ -158,7 +158,7 @@
 							// restore dialog css
 							that.$.dialog.className = that.$.dialog.className.replace(/(?:^|\s)keyboard-overlay(?!\S)/g, "");
 						}
-					}, null, 100);
+					}, null, 500);
 				};
 
 				function windowresize() {
@@ -177,6 +177,7 @@
 				Array.prototype.forEach.call(this.$.chooser.shadowRoot.querySelectorAll("paper-input, input"), function(node) {
 					node.addEventListener("focus", showVK);
 					node.addEventListener("blur", hideVK);
+
 
 					// normally, onchange event is fired when element is about to lose focus
 					// but for some unknown reason, the element is still focused ...
