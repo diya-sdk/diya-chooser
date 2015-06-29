@@ -134,7 +134,7 @@
 								// input is already focus before paper-dialog css changed, we need to refocus again
 								// input.blur();
 								// input.focus();
-								that.$.dialog.$.scroller.scrollTop = that.$.dialog.$.scroller.scrollTop + input.getBoundingClientRect().top - that.$.dialog.$.scroller.getBoundingClientRect().top;
+								input.scrollIntoView();
 							} else {
 								// non overlay type virtual keyboard
 							}
