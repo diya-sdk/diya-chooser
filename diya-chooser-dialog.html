@@ -114,37 +114,77 @@
 
 				var bOverlay = false;
 
-				window.addEventListener("resize", function() {
+				// quick hack for virtual keyboard problem:
+				function showVK() {
+					if ( bOverlay || ( Math.abs(orgSize - window.innerHeight * window.innerWidth) / orgSize < 0.2) ) {
+						// overlay keyboard
+						bOverlay = true;
+
+						// overide any existent class, wait for Polymer setup
+						that.async(function() {
+							that.$.dialog.className = "keyboard-overlay";
+							that.$.dialog.notifyResize();
+							// focus on input
+							// input is already focus before paper-dialog css changed, we need to refocus again
+							// input.blur();
+							// input.focus();
+						});
+					} else {
+						// non overlay type virtual keyboard
+					}
+				};
+
+				// quick hack for virtual keyboard problem:
+				function hideVK() {
+					if (bOverlay) {
+						// restore dialog css
+						that.async(function() {
+							that.$.dialog.className = "";
+							// focus on input
+							// input is already focus before paper-dialog css changed, we need to refocus again
+							// input.blur();
+							// input.focus();
+						});
+					}
+				};
+
+				function windowresize() {
 					// during resize, paper-dialog's css hasn't been changed yet, so we need to delay our css
 					// get current focused element
 					var input = that.$.chooser.shadowRoot.activeElement;
 					if (input && input.value != null) {// editable content, current focus is input or paper-input
 						// input is already focus so virtual kb is up
 						// guess the type of keyboard by apply threshold
-						if ( bOverlay || ( Math.abs(orgSize - window.innerHeight * window.innerWidth) / orgSize < 0.2) ) {
-							// overlay keyboard
-							bOverlay = true;
-
-							// overide any existent class
-							that.$.dialog.className = "keyboard-overlay"
-						} else {
-							// non overlay type virtual keyboard
-						}
-
-						// focus on input
-						setTimeout(function() {
-							// input is already focus before paper-dialog css changed, we need to refocus again
-							input.blur();
-							input.focus();
-						}, 10);
+						showVK();
 					} else {
-						if (bOverlay) {
-							// restore dialog css
-							// that.$.dialog.className = that.$.dialog.className.replace(/(?:^|\s)keyboard-overlay(?!\S)/g, "");
-							that.$.dialog.className = "";
-						}
+						hideVK();
 					}
+				};
+
+				Array.prototype.forEach.call(this.$.chooser.shadowRoot.querySelectorAll("paper-input, input"), function(node) {
+					node.addEventListener("focus", showVK);
+					node.addEventListener("blur", hideVK);
+
+					// node.addEventListener("focus", function(e) { console.log("focus", this, e); showVK();});
+					// node.addEventListener("focusin", function(e) { console.log("focusin", this, e)});
+					// node.addEventListener("focusout", function(e) { console.log("focusout", this, e)});
+					// node.addEventListener("blur", function(e) { console.log("blur", this, e); hideVK();});
+
+					// normally, onchange event is fired when element is about to lose focus
+					// but for some unknown reason, the element is still focused ...
+					// so we need to focus out to hide VK
+					// onchange won't be fire if value isn't changed
+					// node.addEventListener("change", function(e) { console.log("change", e)});
+					node.addEventListener("keypress", function(e) {
+						if (e.keyCode === 13) {
+							// or e.keyIdentifier === "Enter" in chrome
+							this.blur();
+						}
+					});
 				});
+
+
+				window.addEventListener("resize", windowresize);
 			},
 
 			toggle: function(){
