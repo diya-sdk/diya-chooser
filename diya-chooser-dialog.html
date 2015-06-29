@@ -116,21 +116,32 @@
 
 				// quick hack for virtual keyboard problem:
 				function showVK() {
-					if ( bOverlay || ( Math.abs(orgSize - window.innerHeight * window.innerWidth) / orgSize < 0.2) ) {
-						// overlay keyboard
-						bOverlay = true;
+					var input = that.$.chooser.shadowRoot.activeElement;
 
-						// overide any existent class, wait for Polymer setup
-						that.async(function() {
-							that.$.dialog.className = "keyboard-overlay";
-							that.$.dialog.notifyResize();
-							// focus on input
-							// input is already focus before paper-dialog css changed, we need to refocus again
-							// input.blur();
-							// input.focus();
-						});
-					} else {
-						// non overlay type virtual keyboard
+					if (input && input.value != null) {// editable content, current focus is input or paper-input
+						// input is already focus so virtual kb is up
+						// guess the type of keyboard by apply threshold
+						if ( bOverlay || ( Math.abs(orgSize - window.innerHeight * window.innerWidth) / orgSize < 0.2) ) {
+							// overlay keyboard
+							bOverlay = true;
+
+							// already hasClass?
+							if (/(?:^|\s)keyboard-overlay(?!\S)/g.test(that.$.dialog.className)) {
+								// do nothing
+							} else {
+								that.async(function() {
+									// overide any existent class, wait for Polymer setup
+									that.$.dialog.className += " keyboard-overlay";
+									// focus on input
+									// input is already focus before paper-dialog css changed, we need to refocus again
+									// input.blur();
+									// input.focus();
+									that.$.dialog.$.scroller.scrollTop = input.getBoundingClientRect().top - that.$.dialog.$.scroller.getBoundingClientRect().top;
+								});
+							}
+						} else {
+							// non overlay type virtual keyboard
+						}
 					}
 				};
 
@@ -139,7 +150,7 @@
 					if (bOverlay) {
 						// restore dialog css
 						that.async(function() {
-							that.$.dialog.className = "";
+							that.$.dialog.className = that.$.dialog.className.replace(/(?:^|\s)keyboard-overlay(?!\S)/g, "");
 							// focus on input
 							// input is already focus before paper-dialog css changed, we need to refocus again
 							// input.blur();
@@ -164,6 +175,7 @@
 				Array.prototype.forEach.call(this.$.chooser.shadowRoot.querySelectorAll("paper-input, input"), function(node) {
 					node.addEventListener("focus", showVK);
 					node.addEventListener("blur", hideVK);
+
 
 					// node.addEventListener("focus", function(e) { console.log("focus", this, e); showVK();});
 					// node.addEventListener("focusin", function(e) { console.log("focusin", this, e)});
