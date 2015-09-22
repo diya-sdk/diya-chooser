@@ -79,7 +79,7 @@
 
 	</style>
     <template>
-		<paper-button on-click="actionToggle">Select diya...</paper-button>
+	    <paper-button on-click="actionToggle">{{computeBtnName(selector)}}</paper-button>
 		<paper-dialog id="dialog">
 			<paper-button id="close" on-tap="actionToggle">
 				<paper-fab icon="close" mini="" title="close dialog" role="button" style="background: grey">
@@ -212,6 +212,17 @@
         hide: function () {
             this.$.dialog.opened = false;
         },
+	
+	computeBtnName: function(selector){
+		if(!selector || Array.isArray(selector) && selector.length === 0) return 'select diya...';
+		else if(Array.isArray(selector)){
+			var str = '';
+			selector.forEach(function(dn){ str = str+' '+dn; });
+			return str;
+		}else {
+			return selector;
+		}
+	},
 
         ///////////////////////////////////////
         ////////// Action handlers ////////////
