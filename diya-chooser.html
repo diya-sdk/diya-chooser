@@ -8,17 +8,17 @@
 <script type="text/javascript" src="../diya-sdk/build/diya-sdk.js"></script>
 
 <script type="text/javascript">
-  if (!String.prototype.startsWith) {
-    String.prototype.startsWith = function (searchString, position) {
-      position = position || 0;
-      return this.indexOf(searchString, position) === position;
-    };
-  }
+	if (!String.prototype.startsWith) {
+		String.prototype.startsWith = function (searchString, position) {
+			position = position || 0;
+			return this.indexOf(searchString, position) === position;
+		};
+	}
 </script>
 
 
 <dom-module id="diya-chooser">
-  <style>
+	<style>
 
 			:host{
 				display: flex;
@@ -63,9 +63,9 @@
 				justify-content: left;
 			}
 
-            #serverInputSection paper-input{
-                flex: 1;
-            }
+						#serverInputSection paper-input{
+								flex: 1;
+						}
 
 			#serverEntries{
 				overflow: auto;
@@ -85,7 +85,7 @@
 			.serverEntry p{
 				margin: 0px;
 				margin-left: 5px;
-                flex: 1;
+								flex: 1;
 			}
 
 			.disconnected{
@@ -103,7 +103,7 @@
 
 			.nodeEntry p{
 				margin: 10px;
-                flex: 1;
+								flex: 1;
 			}
 
 			.nodeEntry paper-checkbox{
@@ -214,7 +214,7 @@
 			}
 
 		</style>
-  <template>
+	<template>
 		<div id="content">
 			<section id="servers">
 				<h4>Servers</h4>
@@ -251,7 +251,7 @@
 		<section id="footer">
 			<template is="dom-if" if="{{computeIf(authenticated, noAuth)}}">
 				<section id="auth">
-		   			<paper-input label="username..." id="userInput" value="{{user}}"></paper-input>
+			 			<paper-input label="username..." id="userInput" value="{{user}}"></paper-input>
 					<paper-input label="password..." id="passwordInput" value="{{password}}" type="password"></paper-input>
 
 					<paper-fab icon="arrow-forward" mini="" title="Authenticate" role="button" on-tap="actionAuthenticate" style="background: rgb(1, 145, 197)">
@@ -282,258 +282,258 @@
 	</template>
 </dom-module>
 <script>
-    Polymer({
-        is: 'diya-chooser',
-        properties: {
-            forceAuth: { type: Boolean, value: false, notify: true },
-            noAuth: { type: Boolean, value: false, notify: true },
-            selector: { notify: true },
-            single: { type: Boolean, value: false, notify: true }
-        },
+		Polymer({
+				is: 'diya-chooser',
+				properties: {
+						forceAuth: { type: Boolean, value: false, notify: true },
+						noAuth: { type: Boolean, value: false, notify: true },
+						selector: { notify: true },
+						single: { type: Boolean, value: false, notify: true }
+				},
 
-        ready: function () {
-            var that = this;
-            this.nodes = [];
-            this.servers = [];
-            this.user = null;
-            this.password = null;
-            this.authenticated = false;
-            this.selector = null;
+				ready: function () {
+						var that = this;
+						this.nodes = [];
+						this.servers = [];
+						this.user = null;
+						this.password = null;
+						this.authenticated = false;
+						this.selector = null;
 
-            d1.on('open', function (addr) {
-                that.onServerConnected(addr);
-            }).on('close', function (addr, err) {
-                that.onServerDisconnected(addr, err);
-            });
+						d1.on('open', function (addr) {
+								that.onServerConnected(addr);
+						}).on('close', function (addr, err) {
+								that.onServerDisconnected(addr, err);
+						});
 
-            d1(/.*/).listen().on('peer-connected', function (peerId) {
-                that.addNode(peerId);
-            }).on('peer-disconnected', function (peerId) {
-                that.removeNode(peerId);
-            });
+						d1(/.*/).listen().on('peer-connected', function (peerId) {
+								that.addNode(peerId);
+						}).on('peer-disconnected', function (peerId) {
+								that.removeNode(peerId);
+						});
 
-            this.retrieveServerSettings();
-            this.retrieveUserSettings();
-        },
+						this.retrieveServerSettings();
+						this.retrieveUserSettings();
+				},
 
-        show: function () {
-            this.style.display = 'flex';
-        },
+				show: function () {
+						this.style.display = 'flex';
+				},
 
-        hide: function () {
-            this.style.display = 'none';
-        },
+				hide: function () {
+						this.style.display = 'none';
+				},
 
-        /////////////////////////////////////////////////////////////
-        /////////////// Node related methods ////////////////////////
-        /////////////////////////////////////////////////////////////
-        addNode: function (dn) {
-            for (var i = 0; i < this.nodes.length; i++) {
-                if (this.nodes[i].name === dn)
-                return false;
-            }
+				/////////////////////////////////////////////////////////////
+				/////////////// Node related methods ////////////////////////
+				/////////////////////////////////////////////////////////////
+				addNode: function (dn) {
+						for (var i = 0; i < this.nodes.length; i++) {
+								if (this.nodes[i].name === dn)
+								return false;
+						}
 
-            this.push('nodes',{
-                name: dn,
-                authenticated: 'notAuthenticated',
-                selected: false
-            });
-            //this.displayHack();
-            return true;
-        },
+						this.push('nodes',{
+								name: dn,
+								authenticated: 'notAuthenticated',
+								selected: false
+						});
+						//this.displayHack();
+						return true;
+				},
 
-        removeNode: function (dn) {
-            for (var i = 0; i < this.nodes.length; i++) {
-                if (this.nodes[i].name === dn) {
-                    this.splice('nodes', i, 1);
-                    this.displayHack();
-                    return true;
-                }
-            }
-            return false;
-        },
+				removeNode: function (dn) {
+						for (var i = 0; i < this.nodes.length; i++) {
+								if (this.nodes[i].name === dn) {
+										this.splice('nodes', i, 1);
+										this.displayHack();
+										return true;
+								}
+						}
+						return false;
+				},
 
-        //Dirty Hack, Bug in Polymer : style is lost when a template repeat's underlying data changes
-        displayHack: function () {
-            var nodes = this.$.nodes.querySelectorAll('.nodeEntry');
-            for (var i = 0; i < nodes.length; i++) {
-                nodes[i].setAttribute('class', '');
-            }
-            for (var i = 0; i < nodes.length; i++) {
-                nodes[i].setAttribute('class', 'nodeEntry');
-            }
-        },
+				//Dirty Hack, Bug in Polymer : style is lost when a template repeat's underlying data changes
+				displayHack: function () {
+						var nodes = this.$.nodes.querySelectorAll('.nodeEntry');
+						for (var i = 0; i < nodes.length; i++) {
+								nodes[i].setAttribute('class', '');
+						}
+						for (var i = 0; i < nodes.length; i++) {
+								nodes[i].setAttribute('class', 'nodeEntry');
+						}
+				},
 
-        authenticate: function (user, password, selectedNodes) {
-            var that = this;
+				authenticate: function (user, password, selectedNodes) {
+						var that = this;
 
-            d1(selectedNodes).auth(user, password, function (nodeId, authenticated) {
-                if (authenticated) {
-                    that.saveUserSettings();
-                    that.authenticated = true;
-                } else if (!that.authenticated) {
-                    that.$.authFailedToast.show();
-                }
-            });
-        },
+						d1(selectedNodes).auth(user, password, function (nodeId, authenticated) {
+								if (authenticated) {
+										that.saveUserSettings();
+										that.authenticated = true;
+								} else if (!that.authenticated) {
+										that.$.authFailedToast.show();
+								}
+						});
+				},
 
-        /////////////////////////////////////////////////////////////
-        ////////////////////// Server related methods ///////////////
-        /////////////////////////////////////////////////////////////
-        retrieveServerSettings: function () {
-            var savedServerSettingsStr = localStorage.getItem('diya.chooser.servers');
+				/////////////////////////////////////////////////////////////
+				////////////////////// Server related methods ///////////////
+				/////////////////////////////////////////////////////////////
+				retrieveServerSettings: function () {
+						var savedServerSettingsStr = localStorage.getItem('diya.chooser.servers');
 
-            if (savedServerSettingsStr) {
-                try {
-                    var savedServerSettings = JSON.parse(savedServerSettingsStr);
-                    if (Array.isArray(savedServerSettings)) {
-                        for (var i = 0; i < savedServerSettings.length; i++) {
-                            this.addServer(savedServerSettings[i]);
-                        }
-                    }
-                } catch (e) {
-                }  //ignore settings
-            }
-        },
+						if (savedServerSettingsStr) {
+								try {
+										var savedServerSettings = JSON.parse(savedServerSettingsStr);
+										if (Array.isArray(savedServerSettings)) {
+												for (var i = 0; i < savedServerSettings.length; i++) {
+														this.addServer(savedServerSettings[i]);
+												}
+										}
+								} catch (e) {
+								}	//ignore settings
+						}
+				},
 
-        //ignore settings
-        saveServerSettings: function () {
-            var serverSettings = this.servers.map(function (s) {
-                return s.addr;
-            });
-            var serverSettingsStr = JSON.stringify(serverSettings);
-            localStorage.setItem('diya.chooser.servers', serverSettingsStr);
-        },
+				//ignore settings
+				saveServerSettings: function () {
+						var serverSettings = this.servers.map(function (s) {
+								return s.addr;
+						});
+						var serverSettingsStr = JSON.stringify(serverSettings);
+						localStorage.setItem('diya.chooser.servers', serverSettingsStr);
+				},
 
-        retrieveUserSettings: function () {
-            this.user = localStorage.getItem('diya.chooser.user') || '';
-            this.password = localStorage.getItem('diya.chooser.password') || '';
-        },
+				retrieveUserSettings: function () {
+						this.user = localStorage.getItem('diya.chooser.user') || '';
+						this.password = localStorage.getItem('diya.chooser.password') || '';
+				},
 
-        saveUserSettings: function () {
-            localStorage.setItem('diya.chooser.user', this.user);
-            localStorage.setItem('diya.chooser.password', this.password);
-        },
+				saveUserSettings: function () {
+						localStorage.setItem('diya.chooser.user', this.user);
+						localStorage.setItem('diya.chooser.password', this.password);
+				},
 
-        addServer: function (addr) {
-            if (!addr.startsWith('ws://') && !addr.startsWith('wss://')) {
-                addr = 'ws://' + addr;
-            }
-            for (var i = 0; i < this.servers.length; i++) {
-                if (this.servers[i].addr === addr)
-                return false;
-            }
-            this.push('servers',{
-                addr: addr,
-                status: 'disconnected'
-            });
-            this.saveServerSettings();
-            return true;
-        },
+				addServer: function (addr) {
+						if (!addr.startsWith('ws://') && !addr.startsWith('wss://')) {
+								addr = 'ws://' + addr;
+						}
+						for (var i = 0; i < this.servers.length; i++) {
+								if (this.servers[i].addr === addr)
+								return false;
+						}
+						this.push('servers',{
+								addr: addr,
+								status: 'disconnected'
+						});
+						this.saveServerSettings();
+						return true;
+				},
 
-        removeServer: function (index) {
-            var server = this.servers[index];
+				removeServer: function (index) {
+						var server = this.servers[index];
 
-            if (server.addr === d1.currentServer())
-                d1.disconnect();
+						if (server.addr === d1.currentServer())
+								d1.disconnect();
 
-            this.splice('servers', index, 1);
-            this.saveServerSettings();
-        },
+						this.splice('servers', index, 1);
+						this.saveServerSettings();
+				},
 
-        getServer: function (addr) {
-            for (var i = 0; i < this.servers.length; i++) {
-                if (this.servers[i].addr === addr)
-                    return this.servers[i];
-            }
-            return null;
-        },
+				getServer: function (addr) {
+						for (var i = 0; i < this.servers.length; i++) {
+								if (this.servers[i].addr === addr)
+										return this.servers[i];
+						}
+						return null;
+				},
 
-        connectServer: function (index) {
-            var that = this;
-            that.authenticated = false;
+				connectServer: function (index) {
+						var that = this;
+						that.authenticated = false;
 
-            this.servers.forEach(function (s) {
-                s.status = 'disconnected';
-            });
+						this.servers.forEach(function (s) {
+								s.status = 'disconnected';
+						});
 
-            d1.connect(this.servers[index].addr).catch(function (err) {
-                that.servers[index].status = 'unreachable';
-            });
-        },
+						d1.connect(this.servers[index].addr).catch(function (err) {
+								that.servers[index].status = 'unreachable';
+						});
+				},
 
-        onServerConnected: function (addr) {
-            var server = this.getServer(addr);
-            if (server)
-                server.status = 'connected';
+				onServerConnected: function (addr) {
+						var server = this.getServer(addr);
+						if (server)
+								server.status = 'connected';
 
-            if (this.user !== '' && this.password !== '') {
-                this.actionAuthenticate();
-            }
-        },
+						if (this.user !== '' && this.password !== '') {
+								this.actionAuthenticate();
+						}
+				},
 
-        onServerDisconnected: function (addr) {
-            var server = this.getServer(addr);
-            if (server)
-                server.status = 'disconnected';
-        },
+				onServerDisconnected: function (addr) {
+						var server = this.getServer(addr);
+						if (server)
+								server.status = 'disconnected';
+				},
 
-        /////////////////////////////////////////////////////////////
-        ///////////////////// Action Handlers ///////////////////////
-        /////////////////////////////////////////////////////////////
-        actionAddServer: function (evt) {
-            var serverAddr = this.$.serverInput.value;
-            this.addServer(serverAddr);
-        },
+				/////////////////////////////////////////////////////////////
+				///////////////////// Action Handlers ///////////////////////
+				/////////////////////////////////////////////////////////////
+				actionAddServer: function (evt) {
+						var serverAddr = this.$.serverInput.value;
+						this.addServer(serverAddr);
+				},
 
-        actionDeleteServer: function (evt) {
-            this.removeServer(evt.model.index);
-        },
+				actionDeleteServer: function (evt) {
+						this.removeServer(evt.model.index);
+				},
 
-        actionConnectServer: function (evt) {
-            this.connectServer(evt.model.index);
-        },
+				actionConnectServer: function (evt) {
+						this.connectServer(evt.model.index);
+				},
 
-        actionAuthenticate: function (evt) {
-            var user = this.$$('#userInput').value;
-            var password = this.$$('#passwordInput').value;
-            var selectedNodes = this.nodes.map(function (n) {
-                return n.name;
-            });
-            this.authenticate(user, password, selectedNodes);
-        },
+				actionAuthenticate: function (evt) {
+						var user = this.$$('#userInput').value;
+						var password = this.$$('#passwordInput').value;
+						var selectedNodes = this.nodes.map(function (n) {
+								return n.name;
+						});
+						this.authenticate(user, password, selectedNodes);
+				},
 
-        actionDeauthenticate: function (evt) {
-            this.authenticated = false;
-            d1.deauthenticate();
-            this.selector = null;
-        },
+				actionDeauthenticate: function (evt) {
+						this.authenticated = false;
+						d1.deauthenticate();
+						this.selector = null;
+				},
 
-        actionNodeSelected: function (evt) {
-            if (!this.single)
-                return;  //In single mode, only one node can be selected at a time
-            //In single mode, only one node can be selected at a time
-            var nodeId = evt.model.index;
-            for (var i = 0; i < this.nodes.length; i++) {
-                if (i !== nodeId)
-                this.nodes[i].selected = false;
-            }
-        },
-        actionSelect: function (evt) {
-            if (this.forceAuth && !this.authenticated) {
-                this.$.authToast.show();
-                return;
-            }  //creates an array of the names of the selected robots
-            //creates an array of the names of the selected robots
-            this.selector = this.nodes.filter(function (n) {
-                return n.selected;
-            }).map(function (n) {
-                return n.name;
-            });
-        },
+				actionNodeSelected: function (evt) {
+						if (!this.single)
+								return;	//In single mode, only one node can be selected at a time
+						//In single mode, only one node can be selected at a time
+						var nodeId = evt.model.index;
+						for (var i = 0; i < this.nodes.length; i++) {
+								if (i !== nodeId)
+								this.nodes[i].selected = false;
+						}
+				},
+				actionSelect: function (evt) {
+						if (this.forceAuth && !this.authenticated) {
+								this.$.authToast.show();
+								return;
+						}	//creates an array of the names of the selected robots
+						//creates an array of the names of the selected robots
+						this.selector = this.nodes.filter(function (n) {
+								return n.selected;
+						}).map(function (n) {
+								return n.name;
+						});
+				},
 
-        computeIf: function (authenticated, noAuth) {
-            return !authenticated && !noAuth;
-        }
-    });
+				computeIf: function (authenticated, noAuth) {
+						return !authenticated && !noAuth;
+				}
+		});
 </script>
