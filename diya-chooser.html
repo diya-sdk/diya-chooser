@@ -354,6 +354,8 @@
 
 				this.retrieveServerSettings();
 				this.retrieveUserSettings();
+
+				this.autoconnect();
 			},
 
 			show: function(){
@@ -407,6 +409,7 @@
 					if(authenticated){
 						that.saveUserSettings();
 						that.authenticated = true;
+						that.onAuthenticated(user);
 					}else if(!that.authenticated){
 						that.$.authFailedToast.show();
 					}
@@ -417,6 +420,13 @@
 			/////////////////////////////////////////////////////////////
 			////////////////////// Server related methods ///////////////
 			/////////////////////////////////////////////////////////////
+
+			autoconnect: function() {
+				this._autoconnecting = true;
+				if(this.servers.length) {
+					this.connectServer(0);
+				}
+			},
 
 			retrieveServerSettings: function(){
 				var savedServerSettingsStr = localStorage.getItem('diya.chooser.servers');
@@ -512,6 +522,13 @@
 				if(server) server.status = 'disconnected';
 			},
 
+			onAuthenticated: function(user) {
+				if(this._autoconnecting) {
+					this.nodes.filter(function(n){return n.name === d1.self();}).map(function(n){ n.selected = true;});
+					this.actionSelect();
+					this._autoconnecting = false;
+				}
+			},
 
 			/////////////////////////////////////////////////////////////
 			///////////////////// Action Handlers ///////////////////////
