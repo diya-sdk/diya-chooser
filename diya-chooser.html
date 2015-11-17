@@ -423,8 +423,9 @@
 
 			autoconnect: function() {
 				this._autoconnecting = true;
-				if(this.servers.length) {
-					this.connectServer(0);
+				if(this.servers) {
+					var i = this.getServerIndex(localStorage.getItem('diya.chooser.autoconnect'));
+					if(i!==-1) this.connectServer(i);
 				}
 			},
 
@@ -494,6 +495,13 @@
 				return null;
 			},
 
+			getServerIndex: function(addr) {
+				for(var i=0; i<this.servers.length; i++){
+					if(this.servers[i].addr === addr) return i;
+				}
+				return -1;
+			},
+
 			connectServer: function(index){
 				var that = this;
 
@@ -506,6 +514,7 @@
 				d1.connect(this.servers[index].addr).catch(function(err){
 					that.servers[index].status = 'unreachable';
 				});
+
 			},
 
 			onServerConnected: function(addr){
@@ -515,6 +524,8 @@
 				if(this.user !== '' && this.password !== ''){
 					this.actionAuthenticate();
 				}
+
+				localStorage.setItem('diya.chooser.autoconnect', addr);
 			},
 
 			onServerDisconnected: function(addr){
