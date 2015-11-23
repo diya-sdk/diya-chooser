@@ -21,26 +21,26 @@
 	<style>
 
 			:host{
+				box-sizing: border-box;
 				display: flex;
 				flex-direction: column;
-				padding: 10px;
 				background: white;
 			}
 
 			h3{
 				text-align: center;
-				margin: -10px;
-				margin-bottom: 10px;
-				padding-top: 10px;
 				font-size: 1.4em;
 			}
+			h4 { margin:0; padding:0;}
 
 			#content{
+				padding:10px;
+				box-sizing: border-box;
 				width: 100%;
-
+				overflow-y:auto;
 				flex: 1;
 
-				display: flex;
+				display: block;
 				flex-direction: row;
 				justify-content: center;
 			}
@@ -124,6 +124,7 @@
 				border-top: 1px solid lightgray;
 				height: 60px;
 				justify-content: space-between;
+				padding:5px;
 			}
 
 			#auth{
@@ -197,7 +198,7 @@
 
 			/*@media screen and (max-width: 480px), screen and (orientation: portrait){*/
 			@media screen and (max-width: 620px) {
-				#content, #auth, #footer{
+				#content, #footer{
 					flex-direction: column;
 				}
 
@@ -253,8 +254,7 @@
 				<section id="auth">
 			 			<paper-input label="username..." id="userInput" value="{{user}}"></paper-input>
 					<paper-input label="password..." id="passwordInput" value="{{password}}" type="password"></paper-input>
-
-					<paper-fab icon="arrow-forward" mini="" title="Authenticate" role="button" on-tap="actionAuthenticate" style="background: rgb(1, 145, 197)">
+					<paper-fab icon="arrow-forward" mini="" title="Authenticate" role="button" on-tap="actionAuthenticate" style="background: rgb(1, 145, 197);width: 48px !important;">
 					</paper-fab>
 				</section>
 			</template>
