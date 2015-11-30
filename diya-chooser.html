@@ -22,41 +22,41 @@
 		<style>
 
 			:host{
+				box-sizing: border-box;
 				display: flex;
 				flex-direction: column;
-				padding: 10px;
+				padding: 0;
 				background: white;
 			}
 
 			h3{
 				text-align: center;
-				margin: -10px;
-				margin-bottom: 10px;
-				padding-top: 10px;
 				font-size: 1.4em;
 			}
+			h4 { margin:0; padding:0;}
+
+			h4 { margin:0; padding:0; margin-top:10px;}
 
 			#content{
+				padding: 10px;
 				width: 100%;
-
+				box-sizing: border-box;
 				flex: 1;
-
+				overflow-y: auto;
 				display: flex;
 				flex-direction: row;
 				justify-content: center;
 			}
+			 #content::-webkit-scrollbar { display:none;}
 
 			#servers{
 				display: flex;
 				flex-direction: column;
 				flex: 1;
-				padding-right: 10px;
-
 			}
 
 			#nodes{
 				flex: 1;
-				padding-left: 10px;
 			}
 
 			#serverInputSection{
@@ -68,7 +68,6 @@
 			}
 
 			#serverEntries{
-				overflow: auto;
 				flex: 1;
 
 			}
@@ -118,18 +117,24 @@
 			}
 
 			#footer{
+				padding:5px;
 				display: flex;
 				border-top: 1px solid lightgray;
 				height: 60px;
 				justify-content: space-between;
+				box-shadow: 0 0 4px rgba(0,0,0,0.5);
+				z-index:40000;
+				background:white;
 			}
 
 			#auth{
 				display: flex;
 				align-items: center;
 				justify-content: flex-start;
-
+				flex-direction: row;
 			}
+
+			#auth paper-input-decorator { margin:3px; padding:0; }
 
 			#userInput{
 				margin-right: 10px;
@@ -193,11 +198,18 @@
 				padding: 0px;
 			}
 
-			/*@media screen and (max-width: 480px), screen and (orientation: portrait){*/
-			@media screen and (max-width: 620px) {
-				#content, #auth, #footer{
+			#authenticated { position:fixed; bottom:4px; right:4px; }
+			#padding {     margin-bottom: 107px;}
+			#padding {display:none;}
+
+			@media screen and (max-width: 480px), screen and (orientation: portrait){
+
+				#content, #footer{
 					flex-direction: column;
+					display:block;
 				}
+				#padding {display:block;}
+
 
 				#footer{
 					height: auto;
@@ -210,6 +222,7 @@
 				}
 
 			}
+
 
 		</style>
 		<div id="content">
@@ -264,9 +277,11 @@
 					</section>
 				</template>
 			</section>
+
+			<div id="padding"></div>
 		</div>
+		<template if="{{!authenticated&&!noAuth}}">
 		<section id="footer">
-			<template if="{{!authenticated&&!noAuth}}">
 				<section id="auth">
 					<paper-input-decorator label="username..." floatinglabel>
 		   				<input id="userInput" is="core-input" value="{{user}}" />
@@ -283,37 +298,12 @@
 						style="background: rgb(1, 145, 197)">
 					</paper-fab>
 				</section>
-			</template>
-			<section id="status">
-				<template if="{{authenticated}}">
-					<section id="authenticatedMsg">
-						<div>
-							<p>logout</p>
-							<paper-fab
-								icon="clear"
-								mini
-								title="Deauthenticate"
-								role="button"
-								on-tap="{{actionDeauthenticate}}"
-								style="background: gray">
-							</paper-fab>
-						</div>
-					</section>
-				</template>
-				<div id="select">
-					<p>select</p>
-					<paper-fab
-						mini
-						icon="check"
-						title="Deauthenticate"
-						role="button"
-						on-tap="{{actionSelect}}"
-						style="background: green">
-					</paper-fab>
-				</div>
-			</section>
 		</section>
-
+		</template>
+		<template if="{{authenticated}}">
+			<div id="authenticated"><paper-fab icon="icons:account-circle"	mini title="Deauthenticate" role="button" on-tap="{{actionDeauthenticate}}"
+							style="background: rgb(1, 145, 197)"></paper-fab></div>
+		</template>
 		<paper-toast id="authToast" text="You must be authenticated !"></paper-toast>
 		<paper-toast id="authFailedToast" text="Your username or password is wrong !"></paper-toast>
 
@@ -327,6 +317,9 @@
 
 			ready: function(){
 				var that = this;
+
+				this.title = "Diya Chooser";
+				this.icon = 'android';
 
 				this.nodes = [];
 				this.servers = [];
@@ -342,18 +335,16 @@
 					that.onServerConnected(addr);
 				}).on('close', function(addr, err){
 					that.onServerDisconnected(addr, err);
-				});
-
-				d1(/.*/).listen()
-				.on('peer-connected', function(peerId){
+				}).on('peer-connected', function(peerId){
 					that.addNode(peerId);
-				})
-				.on('peer-disconnected', function(peerId){
+				}).on('peer-disconnected', function(peerId){
 					that.removeNode(peerId);
 				});
 
 				this.retrieveServerSettings();
 				this.retrieveUserSettings();
+
+				this.autoconnect();
 			},
 
 			show: function(){
@@ -407,6 +398,7 @@
 					if(authenticated){
 						that.saveUserSettings();
 						that.authenticated = true;
+						that.onAuthenticated(user);
 					}else if(!that.authenticated){
 						that.$.authFailedToast.show();
 					}
@@ -417,6 +409,14 @@
 			/////////////////////////////////////////////////////////////
 			////////////////////// Server related methods ///////////////
 			/////////////////////////////////////////////////////////////
+
+			autoconnect: function() {
+				this._autoconnecting = true;
+				if(this.servers) {
+					var i = this.getServerIndex(localStorage.getItem('diya.chooser.autoconnect'));
+					if(i!==-1) this.connectServer(i);
+				}
+			},
 
 			retrieveServerSettings: function(){
 				var savedServerSettingsStr = localStorage.getItem('diya.chooser.servers');
@@ -484,6 +484,13 @@
 				return null;
 			},
 
+			getServerIndex: function(addr) {
+				for(var i=0; i<this.servers.length; i++){
+					if(this.servers[i].addr === addr) return i;
+				}
+				return -1;
+			},
+
 			connectServer: function(index){
 				var that = this;
 
@@ -496,6 +503,7 @@
 				d1.connect(this.servers[index].addr).catch(function(err){
 					that.servers[index].status = 'unreachable';
 				});
+
 			},
 
 			onServerConnected: function(addr){
@@ -505,6 +513,8 @@
 				if(this.user !== '' && this.password !== ''){
 					this.actionAuthenticate();
 				}
+
+				localStorage.setItem('diya.chooser.autoconnect', addr);
 			},
 
 			onServerDisconnected: function(addr){
@@ -512,6 +522,24 @@
 				if(server) server.status = 'disconnected';
 			},
 
+			onAuthenticated: function(user) {
+				if(this._autoconnecting) {
+					this.nodes.filter(function(n){return n.name === d1.self();}).map(function(n){ n.selected = true;});
+					this.actionSelect();
+					this._autoconnecting = false;
+				} else {
+					this.actionSelect();
+				}
+			},
+
+			selectorChanged: function() {
+				var that = this;
+				this.nodes.map(function(n){
+					var b = false;
+					for(var i = 0; i<that.selector.length; i++) if(that.selector[i]===n.name) {b = true; break;}
+					n.selected = b;
+				});
+			},
 
 			/////////////////////////////////////////////////////////////
 			///////////////////// Action Handlers ///////////////////////
@@ -554,6 +582,8 @@
 				for(var i=0; i<this.nodes.length; i++) {
 					if(i !== nodeId) this.nodes[i].selected = false;
 				}
+
+				this.actionSelect();
 			},
 
 			actionSelect: function(evt){
