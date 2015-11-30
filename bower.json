@@ -24,13 +24,13 @@
     "tests"
   ],
   "dependencies": {
-    "paper-button": "PolymerElements/paper-button#1.0.x",
-    "paper-input": "PolymerElements/paper-input#1.0.x",
-    "paper-fab": "PolymerElements/paper-fab#1.0.x",
-    "paper-toast": "PolymerElements/paper-toast#1.0.x",
-    "paper-checkbox": "PolymerElements/paper-checkbox#1.0.x",
-    "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#1.0.x",
-    "paper-dialog": "PolymerElements/paper-dialog#1.0.x",
-    "diya-sdk": "partnering/diya-sdk"
+	  "paper-button": "Polymer/paper-button#0.5",
+      "paper-input": "Polymer/paper-input#~0.5.5",
+      "paper-fab": "Polymer/paper-fab#~0.5.5",
+      "paper-toast": "Polymer/paper-toast#~0.5.6",
+      "diya-sdk": "partnering/diya-sdk",
+      "paper-checkbox": "Polymer/paper-checkbox#0.5",
+      "core-overlay": "Polymer/core-overlay#~0.5.6",
+      "paper-dialog": "Polymer/paper-dialog#~0.5.6"
   }
 }
