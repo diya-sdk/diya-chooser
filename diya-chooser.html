@@ -335,13 +335,9 @@
 					that.onServerConnected(addr);
 				}).on('close', function(addr, err){
 					that.onServerDisconnected(addr, err);
-				});
-
-				d1(/.*/).listen()
-				.on('peer-connected', function(peerId){
+				}).on('peer-connected', function(peerId){
 					that.addNode(peerId);
-				})
-				.on('peer-disconnected', function(peerId){
+				}).on('peer-disconnected', function(peerId){
 					that.removeNode(peerId);
 				});
 
