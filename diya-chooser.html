@@ -532,7 +532,18 @@
 					this.nodes.filter(function(n){return n.name === d1.self();}).map(function(n){ n.selected = true;});
 					this.actionSelect();
 					this._autoconnecting = false;
+				} else {
+					this.actionSelect();
 				}
+			},
+
+			selectorChanged: function() {
+				var that = this;
+				this.nodes.map(function(n){
+					var b = false;
+					for(var i = 0; i<that.selector.length; i++) if(that.selector[i]===n.name) {b = true; break;}
+					n.selected = b;
+				});
 			},
 
 			/////////////////////////////////////////////////////////////
@@ -560,8 +571,6 @@
 				var selectedNodes = this.nodes.map(function(n){return n.name});
 
 				this.authenticate(user, password, selectedNodes);
-
-				this.actionSelect();
 			},
 
 			actionDeauthenticate: function(evt){
