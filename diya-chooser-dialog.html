@@ -6,219 +6,238 @@
 <link rel="import" href="diya-chooser.html">
 
 
-<polymer-element name="diya-chooser-dialog" attributes="selector forceAuth noAuth single">
-	<template>
-		<paper-button on-tap="{{actionToggle}}">Select diya...</paper-button>
-
+<dom-module id="diya-chooser-dialog">
 		<style>
 
-			paper-dialog {
-				box-shadow: 0px 0px 15px #555;
-				padding: 20px;
-				background: white;
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: center;
-				margin: 0px;
-			}
+		:host{
+			display: flex;
+			align-items: center;
+		}
 
-			diya-chooser {
-				width: 100%;
-				flex: 1;
-				padding: 0px;
-			}
+		paper-dialog {
+			box-shadow: 0px 0px 15px #555;
+			padding: 20px;
+			background: white;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			margin: 0px;
+		}
 
-			paper-dialog > paper-button {
-				position: absolute;
-				top: 5px;
-				right: 5px;
-				display: none;
-			}
+		diya-chooser {
+			width: 100%;
+			flex: 1;
+			padding: 0px;
+		}
 
-			paper-dialog > paper-button.modal {
-				display: initial ! important;
-			}
+		paper-dialog > paper-button {
+			position: absolute;
+			top: 5px;
+			right: 5px;
+			display: none;
+		}
 
-			@media screen and (orientation: landscape) {
-				paper-dialog.keyboard-overlay {
-					top: 0px !important;
-					height: 100px !important; /* arbitrary value as we will never know keyboard height */
-				}
+		paper-dialog > paper-button.modal {
+			display: initial ! important;
+		}
+
+		@media screen and (orientation: landscape) {
+			paper-dialog.keyboard-overlay {
+				top: 0px !important;
+				height: 100px !important; /* arbitrary value as we will never know keyboard height */
 			}
+		}
 
 			@media screen and (orientation: portrait) {
-				paper-dialog.keyboard-overlay {
-					top: 0px !important;
-					height: 300px !important; /* arbitrary value as we will never know keyboard height */
-				}
+			paper-dialog.keyboard-overlay {
+				top: 0px !important;
+				height: 300px !important; /* arbitrary value as we will never know keyboard height */
+			}
+		}
+
+		@media screen and (max-width: 480px) {
+			paper-dialog {
+				width: 100vw !important;
 			}
 
-			@media screen and (max-width: 480px) {
-				paper-dialog {
-					width: 100vw !important;
-				}
+			paper-dialog::shadow #scroller {
+				max-width : initial !important;
+			}
+		}
 
-				paper-dialog::shadow #scroller {
-					max-width : initial !important;
-				}
+		@media screen and (max-height: 300px) {
+			paper-dialog{
+				height: 100vh !important;
 			}
 
-			@media screen and (max-height: 300px) {
-				paper-dialog{
-					height: 100vh !important;
-				}
-
-				paper-dialog::shadow #scroller {
-					max-height : initial !important;
-				}
+			paper-dialog::shadow #scroller {
+				max-height : initial !important;
 			}
+		}
 
-			@media screen and (max-height: 300px) and (max-width: 480px) {
-				paper-dialog > paper-button {
-					display: initial ! important;
-				}
+		@media screen and (max-height: 300px) and (max-width: 480px) {
+			paper-dialog > paper-button {
+				display: initial ! important;
 			}
+		}
 
-		</style>
-		<paper-dialog id="dialog" layered="false">
-			<paper-button id="close" on-tap="{{toggle}}">
-				<paper-fab icon="close" mini title="close dialog" role="button" style="background: grey">
+	</style>
+    	<template>
+	    <paper-button on-click="actionToggle">{{computeBtnName(selector)}}</paper-button>
+		<paper-dialog id="dialog">
+			<paper-button id="close" on-tap="actionToggle">
+				<paper-fab icon="close" mini="" title="close dialog" role="button" style="background: grey">
 				</paper-fab>
 			</paper-button>
-			<diya-chooser id="chooser" selector="{{selector}}" single="{{single}}" forceAuth="{{forceAuth}}" noAuth="{{noAuth}}"></diya-chooser>
+			<diya-chooser id="chooser" selector="{{selector}}" single="{{single}}" forceauth="{{forceAuth}}" noauth="{{noAuth}}"></diya-chooser>
 		</paper-dialog>
 	</template>
+</dom-module>
 
-	<script>
+<script>
+    Polymer({
+        is: 'diya-chooser-dialog',
+        properties: {
+            forceAuth: { type: Boolean, value: false, notify: true },
+            noAuth: { type: Boolean, value: false, notify: true },
+            selector: { notify: true, observer: 'selectorChanged'},
+            single: { type: Boolean, value: false, notify: true}
+        },
 
-		Polymer({
+        ready: function () {
+            var that = this;  // always show close paper-dialog?
+            // always show close paper-dialog?
+            if (window.innerHeight * window.innerWidth / (300 * 480) < 1.5) {
+                this.$.close.className = 'modal';
+            }
+            // original screen size (approximate value, may be changed due to rotation)
+            // original screen size (approximate value, may be changed due to rotation)
+            var orgSize = window.innerHeight * window.innerWidth;
+            var bOverlay = false;
+            function isMobile() {
+                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            }
+            // quick hack for virtual keyboard problem:
+            // quick hack for virtual keyboard problem:
+            function showVK() {
+                if (isMobile())
+                    that.async(function () {
+                        var input = that.$.chooser.shadowRoot.activeElement;
+                        if (input && input.value != null) {
+                            // editable content, current focus is input or paper-input
+                            // input is already focus so virtual kb is up
+                            // guess the type of keyboard by apply threshold
+                            if (bOverlay || Math.abs(orgSize - window.innerHeight * window.innerWidth) / orgSize < 0.2) {
+                                // overlay keyboard
+                                bOverlay = true;
+                                if (!/(?:^|\s)keyboard-overlay(?!\S)/g.test(that.$.dialog.className)) {
+                                    // set class, wait for Polymer setup
+                                    that.$.dialog.className += ' keyboard-overlay';
+                                }  // focus on input
+                                // input is already focus before paper-dialog css changed, we need to refocus again
+                                // input.blur();
+                                // input.focus();
+                                // focus on input
+                                // input is already focus before paper-dialog css changed, we need to refocus again
+                                // input.blur();
+                                // input.focus();
+                                input.scrollIntoView();
+                            } else {
+                            }  // non overlay type virtual keyboard
+                        }
+                    }, // non overlay type virtual keyboard
+                null, 500);
+            }
+            ;  // quick hack for virtual keyboard problem:
+            // quick hack for virtual keyboard problem:
+            function hideVK() {
+                if (isMobile())
+                    that.async(function () {
+                        var input = that.$.chooser.shadowRoot.activeElement;
+                        if (input && input.value != null) {
+                        }  // editable content, current focus is input or paper-input
+                        // input is already focus so virtual kb is up
+                        // do nothing
+                        else // editable content, current focus is input or paper-input
+                        // input is already focus so virtual kb is up
+                        // do nothing
+                        if (bOverlay) {
+                            // restore dialog css
+                            that.$.dialog.className = that.$.dialog.className.replace(/(?:^|\s)keyboard-overlay(?!\S)/g, '');
+                        }
+                    }, null, 500);
+            }
+            ;
+            function windowresize() {
+                // during resize, paper-dialog's css hasn't been changed yet, so we need to delay our css
+                // get current focused element
+                var input = that.$.chooser.shadowRoot.activeElement;
+                if (input && input.value != null) {
+                    // editable content, current focus is input or paper-input
+                    // input is already focus so virtual kb is up
+                    // guess the type of keyboard by apply threshold
+                    showVK();
+                } else {
+                    hideVK();
+                }
+            }
+            ;
+            Array.prototype.forEach.call(this.$.chooser.root.querySelectorAll('paper-input, input'), function (node) {
+                node.addEventListener('focus', showVK);
+                node.addEventListener('blur', hideVK);  // normally, onchange event is fired when element is about to lose focus
+                                                // but for some unknown reason, the element is still focused ...
+                                                // so we need to focus out to hide VK
+                                                // onchange won't be fire if value isn't changed
+                                                // node.addEventListener("change", function(e) { console.log("change", e)});
+                // normally, onchange event is fired when element is about to lose focus
+                // but for some unknown reason, the element is still focused ...
+                // so we need to focus out to hide VK
+                // onchange won't be fire if value isn't changed
+                // node.addEventListener("change", function(e) { console.log("change", e)});
+                node.addEventListener('keypress', function (e) {
+                    if (e.keyCode === 13) {
+                        // or e.keyIdentifier === "Enter" in chrome
+                        this.blur();
+                    }
+                });
+            });
+            window.addEventListener('resize', windowresize);
 
-			forceAuth: false,
-			noAuth: false,
-			single: false,
+        },
 
-			ready: function(){
-			},
+        toggle: function () {
+            this.$.dialog.toggle();
+        },
 
-			domReady: function() {
-				var that = this;
+        show: function () {
+            this.$.dialog.opened = true;
+        },
 
-				// always show close paper-dialog?
-				if ( (window.innerHeight * window.innerWidth) / (300 * 480) < 1.5 ) {
-					this.$.close.className = "modal";
-				}
+        hide: function () {
+            this.$.dialog.opened = false;
+        },
+	
+	computeBtnName: function(selector){
+		if(!selector || Array.isArray(selector) && selector.length === 0) return 'select diya...';
+		else if(Array.isArray(selector)){
+			var str = '';
+			selector.forEach(function(dn){ str = str+' '+dn; });
+			return str;
+		}else {
+			return selector;
+		}
+	},
 
-				// original screen size (approximate value, may be changed due to rotation)
-				var orgSize = window.innerHeight * window.innerWidth;
+        ///////////////////////////////////////
+        ////////// Action handlers ////////////
+        ///////////////////////////////////////
+        selectorChanged: function () {
+            this.hide();
+        },
 
-				var bOverlay = false;
-
-				function isMobile() {
-					return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-				}
-
-				// quick hack for virtual keyboard problem:
-				function showVK() {
-					if (isMobile()) that.async(function() {
-						var input = that.$.chooser.shadowRoot.activeElement;
-
-						if (input && input.value != null) {// editable content, current focus is input or paper-input
-							// input is already focus so virtual kb is up
-							// guess the type of keyboard by apply threshold
-							if ( bOverlay || ( Math.abs(orgSize - window.innerHeight * window.innerWidth) / orgSize < 0.2) ) {
-								// overlay keyboard
-								bOverlay = true;
-
-								if (!/(?:^|\s)keyboard-overlay(?!\S)/g.test(that.$.dialog.className)) {
-									// set class, wait for Polymer setup
-									that.$.dialog.className += " keyboard-overlay";
-								}
-								// focus on input
-								// input is already focus before paper-dialog css changed, we need to refocus again
-								// input.blur();
-								// input.focus();
-								input.scrollIntoView();
-							} else {
-								// non overlay type virtual keyboard
-							}
-						}
-					}, null, 500);
-				};
-
-				// quick hack for virtual keyboard problem:
-				function hideVK() {
-					if (isMobile()) that.async(function() {
-						var input = that.$.chooser.shadowRoot.activeElement;
-
-						if (input && input.value != null) {// editable content, current focus is input or paper-input
-							// input is already focus so virtual kb is up
-							// do nothing
-						} else if (bOverlay) {
-							// restore dialog css
-							that.$.dialog.className = that.$.dialog.className.replace(/(?:^|\s)keyboard-overlay(?!\S)/g, "");
-						}
-					}, null, 500);
-				};
-
-				function windowresize() {
-					// during resize, paper-dialog's css hasn't been changed yet, so we need to delay our css
-					// get current focused element
-					var input = that.$.chooser.shadowRoot.activeElement;
-					if (input && input.value != null) {// editable content, current focus is input or paper-input
-						// input is already focus so virtual kb is up
-						// guess the type of keyboard by apply threshold
-						showVK();
-					} else {
-						hideVK();
-					}
-				};
-
-				Array.prototype.forEach.call(this.$.chooser.shadowRoot.querySelectorAll("paper-input, input"), function(node) {
-					node.addEventListener("focus", showVK);
-					node.addEventListener("blur", hideVK);
-
-
-					// normally, onchange event is fired when element is about to lose focus
-					// but for some unknown reason, the element is still focused ...
-					// so we need to focus out to hide VK
-					// onchange won't be fire if value isn't changed
-					// node.addEventListener("change", function(e) { console.log("change", e)});
-					node.addEventListener("keypress", function(e) {
-						if (e.keyCode === 13) {
-							// or e.keyIdentifier === "Enter" in chrome
-							this.blur();
-						}
-					});
-				});
-
-
-				window.addEventListener("resize", windowresize);
-			},
-
-			toggle: function(){
-				this.$.dialog.toggle();
-			},
-
-			show: function(){
-				this.$.dialog.opened = true;
-			},
-
-			hide: function(){
-				this.$.dialog.opened = false;
-			},
-
-			///////////////////////////////////////
-			////////// Action handlers ////////////
-			///////////////////////////////////////
-
-			selectorChanged: function(){
-				this.hide();
-			},
-
-			actionToggle: function(){
-				this.toggle();
-			}
-		});
-	</script>
-</polymer-element>
+        actionToggle: function () {
+            this.$.dialog.toggle();
+        }
+  });
+</script>
