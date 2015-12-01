@@ -31,10 +31,6 @@
     "paper-checkbox": "PolymerElements/paper-checkbox#1.0.x",
     "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#1.0.x",
     "paper-dialog": "PolymerElements/paper-dialog#1.0.x",
-<<<<<<< HEAD
     "diya-sdk": "partnering/diya-sdk#master"
-=======
-    "diya-sdk": "partnering/diya-sdk"
->>>>>>> parent of 4458a45... merged NonDiaglogVersion
   }
 }

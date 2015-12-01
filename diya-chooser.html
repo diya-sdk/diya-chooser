@@ -300,17 +300,17 @@
 						this.authenticated = false;
 						this.selector = null;
 
-						d1.on('open', function (addr) {
-								that.onServerConnected(addr);
-						}).on('close', function (addr, err) {
-								that.onServerDisconnected(addr, err);
+
+						d1.on('open', function(addr){
+							that.onServerConnected(addr);
+						}).on('close', function(addr, err){
+							that.onServerDisconnected(addr, err);
+						}).on('peer-connected', function(peerId){
+							that.addNode(peerId);
+						}).on('peer-disconnected', function(peerId){
+							that.removeNode(peerId);
 						});
 
-						d1(/.*/).listen().on('peer-connected', function (peerId) {
-								that.addNode(peerId);
-						}).on('peer-disconnected', function (peerId) {
-								that.removeNode(peerId);
-						});
 
 						this.retrieveServerSettings();
 						this.retrieveUserSettings();
@@ -333,77 +333,12 @@
 								return false;
 						}
 
-<<<<<<< HEAD
-			forceAuth: false,
-			noAuth: false,
-			single: false,
-
-			ready: function(){
-				var that = this;
-
-				this.title = "Diya Chooser";
-				this.icon = 'android';
-
-				this.nodes = [];
-				this.servers = [];
-
-				this.user = null;
-				this.password = null;
-
-				this.authenticated = false;
-
-				this.selector = null;
-
-				d1.on('open', function(addr){
-					that.onServerConnected(addr);
-				}).on('close', function(addr, err){
-					that.onServerDisconnected(addr, err);
-				}).on('peer-connected', function(peerId){
-					that.addNode(peerId);
-				}).on('peer-disconnected', function(peerId){
-					that.removeNode(peerId);
-				});
-
-				this.retrieveServerSettings();
-				this.retrieveUserSettings();
-
-				this.autoconnect();
-			},
-
-			show: function(){
-				this.style.display = 'flex';
-			},
-
-			hide: function(){
-				this.style.display = 'none';
-			},
-
-			/////////////////////////////////////////////////////////////
-			/////////////// Node related methods ////////////////////////
-			/////////////////////////////////////////////////////////////
-
-			addNode: function(dn){
-				for(var i=0;i<this.nodes.length;i++){
-					if(this.nodes[i].name === dn) return false;
-				}
-				this.nodes.push({name: dn, authenticated: 'notAuthenticated', selected: false});
-				this.displayHack();
-				return true;
-			},
-
-			removeNode: function(dn){
-				for(var i=0;i<this.nodes.length;i++){
-					if(this.nodes[i].name === dn) {
-						this.nodes.splice(i, 1);
-						this.displayHack();
-=======
 						this.push('nodes',{
 								name: dn,
 								authenticated: 'notAuthenticated',
 								selected: false
 						});
 						//this.displayHack();
->>>>>>> parent of 4458a45... merged NonDiaglogVersion
 						return true;
 				},
 
