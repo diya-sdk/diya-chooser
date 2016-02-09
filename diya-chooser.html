@@ -288,7 +288,8 @@
 						forceAuth: { type: Boolean, value: false, notify: true },
 						noAuth: { type: Boolean, value: false, notify: true },
 						selector: { notify: true },
-						single: { type: Boolean, value: false, notify: true }
+						single: { type: Boolean, value: false, notify: true },
+						nodes: { type: Array, value: function() {return [];} }
 				},
 
 				ready: function () {
@@ -311,9 +312,14 @@
 							that.removeNode(peerId);
 						});
 
-
+						// Auto connection
 						this.retrieveServerSettings();
 						this.retrieveUserSettings();
+						var selector = this.retrieveServerConnection();
+						this.authenticate(this.user, this.password, selector);
+						this.autoconnect(selector);
+
+
 				},
 
 				show: function () {
@@ -340,6 +346,18 @@
 						});
 						//this.displayHack();
 						return true;
+				},
+
+				findNodeFromName: function(name) {
+						for (var i = 0; i < this.nodes.length; i++) {
+								if (this.nodes[i].name === name) {
+										console.log('node ' + name + ' found: ' + i);
+										return i;
+								}
+						}
+
+						//Not  found
+						return -1;
 				},
 
 				removeNode: function (dn) {
@@ -415,6 +433,29 @@
 						localStorage.setItem('diya.chooser.password', this.password);
 				},
 
+				retrieveServerConnection: function () {
+						var selector = null;
+
+						var serverConnection = localStorage.getItem('diya.chooser.autoconnect') || '';
+						if (serverConnection && serverConnection !== "null") {
+							selector = serverConnection;
+						}
+						return selector;
+				},
+
+				autoconnect: function(selector) {
+					if(this._autoconnecting || !this.servers) return;
+						this._autoconnecting = true;
+						var i = this.getServerIndex(localStorage.getItem('diya.chooser.autoconnectaddress'));
+						if(i!==-1) {
+								this.connectServer(i, selector);
+						}
+					},
+
+				saveServerConnection: function () {
+						localStorage.setItem('diya.chooser.autoconnect', this.selector);
+				},
+
 				addServer: function (addr) {
 						if (!addr.startsWith('ws://') && !addr.startsWith('wss://')) {
 								addr = 'ws://' + addr;
@@ -449,16 +490,26 @@
 						return null;
 				},
 
-				connectServer: function (index) {
+				connectServer: function(index, selector){
 						var that = this;
 						that.authenticated = false;
-
-						this.servers.forEach(function (s) {
-								s.status = 'disconnected';
+						this.servers.forEach(function(s){	
+							s.status = 'disconnected';	
 						});
 
-						d1.connect(this.servers[index].addr).catch(function (err) {
-								that.servers[index].status = 'unreachable';
+						that.servers[index].status = 'connecting';
+						d1.connect(this.servers[index].addr).catch(function(err){
+							that.servers[index].status = 'unreachable';
+						}).then(function() {
+							that.servers[index].status = 'connected';
+							if(selector) {
+									that.selector = selector;
+									var nodeId = that.findNodeFromName(selector);
+									if(nodeId > -1) {
+											var pathAsString = "nodes."+nodeId+".selected";
+											that.set(pathAsString, true);
+									}
+							}
 						});
 				},
 
@@ -470,12 +521,20 @@
 						if (this.user !== '' && this.password !== '') {
 								this.actionAuthenticate();
 						}
+						localStorage.setItem('diya.chooser.autoconnectaddress', addr);
 				},
 
 				onServerDisconnected: function (addr) {
 						var server = this.getServer(addr);
 						if (server)
 								server.status = 'disconnected';
+				},
+
+				getServerIndex: function(addr) {
+						for(var i=0; i<this.servers.length; i++){
+								if(this.servers[i].addr === addr) return i;
+						}
+						return -1;
 				},
 
 				/////////////////////////////////////////////////////////////
@@ -518,6 +577,7 @@
 								if (i !== nodeId)
 								this.nodes[i].selected = false;
 						}
+
 				},
 				actionSelect: function (evt) {
 						if (this.forceAuth && !this.authenticated) {
@@ -530,6 +590,7 @@
 						}).map(function (n) {
 								return n.name;
 						});
+						this.saveServerConnection();
 				},
 
 				computeIf: function (authenticated, noAuth) {
