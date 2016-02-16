@@ -30,6 +30,7 @@
     "paper-toast": "PolymerElements/paper-toast#1.0.x",
     "paper-checkbox": "PolymerElements/paper-checkbox#1.0.x",
     "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#1.0.x",
+    "paper-dialog-behavior": "PolymerElements/paper-dialog-behavior#1.1.0",
     "paper-dialog": "PolymerElements/paper-dialog#1.0.x",
     "diya-sdk": "partnering/diya-sdk#master"
   }
