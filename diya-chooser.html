@@ -82,10 +82,22 @@
 			background: lightgray;
 		}
 
-		.serverEntry p{
+		.serverEntry .info {
 			margin: 0px;
 			margin-left: 5px;
 			flex: 1;
+		}
+
+		.serverEntry .info p {
+			margin: 0px;
+		}
+
+		.serverEntry .info .name {
+			font-weight: bold;
+		}
+
+		.serverEntry .info .addr {
+			font-size: 0.6em;
 		}
 
 		.disconnected{
@@ -227,11 +239,13 @@
 				<section id="serverEntries">
 					<template is="dom-repeat" items="{{servers}}" as="server">
 						<section class="serverEntry">
-							<paper-fab mini class="{{server.status}}"></paper-fab>
-							<p>{{server.addr}}</p>
+							<div class="info">
+								<p class="name">{{formatAddr(server.addr)}}</p>
+								<p class="addr">{{server.addr}}</p>
+							</div>
 							<paper-fab icon="delete" mini title="add server" role="button" on-tap="actionDeleteServer" style="background: gray">
 							</paper-fab>
-							<paper-fab icon="arrow-forward" mini title="add server" role="button" on-tap="actionConnectServer" style="background: rgb(1, 145, 197)">
+							<paper-fab icon="{{computeServerConnectButtonIcon(server.status)}}" mini title="add server" role="button" on-tap="actionConnectServer" style="background: rgb(1, 145, 197)">
 							</paper-fab>
 						</section>
 					</template>
@@ -242,7 +256,6 @@
 				<h4>Robots</h4>
 				<template is="dom-repeat" items="{{nodes}}" as="node">
 					<section class="nodeEntry">
-						<paper-fab mini="" class="{{node.authenticated}}"></paper-fab>
 						<p>{{node.name}}</p>
 						<paper-checkbox checked="{{node.selected}}" on-tap="actionNodeSelected"></paper-checkbox>
 					</section>
@@ -604,6 +617,19 @@
 
 		computeIf: function (authenticated, noAuth) {
 			return !authenticated && !noAuth;
+		},
+
+		formatAddr: function(addr) {
+			var fields = addr.split('/');
+			if(fields.length > 3) {
+				return fields[fields.length - 2];
+			}
+			return addr;
+		},
+
+		computeServerConnectButtonIcon: function (status) {
+			if(status === 'connected') return 'radio-button-checked';
+			else return 'arrow-forward';
 		}
 	});
 </script>
