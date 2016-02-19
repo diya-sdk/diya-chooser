@@ -20,201 +20,201 @@
 <dom-module id="diya-chooser">
 	<style>
 
-			:host{
-				box-sizing: border-box;
-				display: flex;
+		:host{
+			box-sizing: border-box;
+			display: flex;
+			flex-direction: column;
+			background: white;
+		}
+
+		h3{
+			text-align: center;
+			font-size: 1.4em;
+		}
+		h4 { margin:0; padding:0;}
+
+		#content{
+			padding:10px;
+			box-sizing: border-box;
+			width: 100%;
+			overflow-y:auto;
+			flex: 1;
+
+			display: block;
+			flex-direction: row;
+			justify-content: center;
+		}
+
+		#servers{
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+		}
+
+		#nodes{
+			flex: 1;
+		}
+
+		#serverInputSection{
+
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: left;
+		}
+
+		#serverInputSection paper-input{
+			flex: 1;
+		}
+
+		#serverEntries{
+			overflow: auto;
+			flex: 1;
+
+		}
+
+		.serverEntry, .nodeEntry{
+			display: flex;
+			align-items: center;
+			border-radius: 0px 30px 30px 0px;
+			margin: 5px;
+			box-shadow: 0px 0px 4px #555;
+			background: lightgray;
+		}
+
+		.serverEntry p{
+			margin: 0px;
+			margin-left: 5px;
+			flex: 1;
+		}
+
+		.disconnected{
+			background: gray;
+		}
+
+		.connected{
+			background: green;
+		}
+
+		.unreachable{
+			background: red;
+		}
+
+
+		.nodeEntry p{
+			margin: 10px;
+			flex: 1;
+		}
+
+		.nodeEntry paper-checkbox{
+			margin-right: 10px;
+
+		}
+
+		paper-checkbox::shadow #ink[checked] {
+			color: rgb(1, 145, 197);
+		}
+
+		paper-checkbox::shadow #checkbox.checked {
+			background: rgb(1, 145, 197);
+		}
+
+		#footer{
+			display: flex;
+			border-top: 1px solid lightgray;
+			height: 60px;
+			justify-content: space-between;
+			padding:5px;
+		}
+
+		#auth{
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+
+		}
+
+		#userInput{
+			margin-right: 10px;
+		}
+
+		.authenticated{
+			background: green;
+		}
+
+		.notAuthenticated{
+			background: gray;
+		}
+
+		.cannotAuthenticate{
+			background: red;
+		}
+
+		#authenticatedMsg{
+			flex: 1;
+			display: flex;
+		}
+
+		#authenticatedMsg div{
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background: lightgray;
+			border-radius: 30px;
+		}
+
+		#authenticatedMsg p{
+			margin: 0px;
+			margin-left: 20px;
+			margin-right: 10px;
+
+			font-size: 1.2em;
+		}
+
+		#status{
+			display: flex;
+			justify-content: flex-end;
+			align-self: center;
+			flex: 1;
+		}
+
+		#select{
+			margin: 0px;
+			padding: 0px;
+			border-radius: 30px;
+			background: lightgray;
+			display: flex;
+			justify-content: flex-end;
+			align-items: center;
+		}
+
+		#select p{
+			margin: 0px;
+			margin-right: 10px;
+			margin-left: 20px;
+			font-size: 1.2em;
+			padding: 0px;
+		}
+
+		/*@media screen and (max-width: 480px), screen and (orientation: portrait){*/
+		@media screen and (max-width: 620px) {
+			#content, #footer{
 				flex-direction: column;
-				background: white;
-			}
-
-			h3{
-				text-align: center;
-				font-size: 1.4em;
-			}
-			h4 { margin:0; padding:0;}
-
-			#content{
-				padding:10px;
-				box-sizing: border-box;
-				width: 100%;
-				overflow-y:auto;
-				flex: 1;
-
-				display: block;
-				flex-direction: row;
-				justify-content: center;
-			}
-
-			#servers{
-				display: flex;
-				flex-direction: column;
-				flex: 1;
-			}
-
-			#nodes{
-				flex: 1;
-			}
-
-			#serverInputSection{
-
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				justify-content: left;
-			}
-
-						#serverInputSection paper-input{
-								flex: 1;
-						}
-
-			#serverEntries{
-				overflow: auto;
-				flex: 1;
-
-			}
-
-			.serverEntry, .nodeEntry{
-				display: flex;
-				align-items: center;
-				border-radius: 0px 30px 30px 0px;
-				margin: 5px;
-				box-shadow: 0px 0px 4px #555;
-				background: lightgray;
-			}
-
-			.serverEntry p{
-				margin: 0px;
-				margin-left: 5px;
-								flex: 1;
-			}
-
-			.disconnected{
-				background: gray;
-			}
-
-			.connected{
-				background: green;
-			}
-
-			.unreachable{
-				background: red;
-			}
-
-
-			.nodeEntry p{
-				margin: 10px;
-								flex: 1;
-			}
-
-			.nodeEntry paper-checkbox{
-				margin-right: 10px;
-
-			}
-
-			paper-checkbox::shadow #ink[checked] {
-				color: rgb(1, 145, 197);
-			}
-
-			paper-checkbox::shadow #checkbox.checked {
-				background: rgb(1, 145, 197);
 			}
 
 			#footer{
-				display: flex;
-				border-top: 1px solid lightgray;
-				height: 60px;
-				justify-content: space-between;
-				padding:5px;
-			}
-
-			#auth{
-				display: flex;
-				align-items: center;
-				justify-content: flex-start;
-
-			}
-
-			#userInput{
-				margin-right: 10px;
-			}
-
-			.authenticated{
-				background: green;
-			}
-
-			.notAuthenticated{
-				background: gray;
-			}
-
-			.cannotAuthenticate{
-				background: red;
-			}
-
-			#authenticatedMsg{
-				flex: 1;
-				display: flex;
-			}
-
-			#authenticatedMsg div{
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				background: lightgray;
-				border-radius: 30px;
-			}
-
-			#authenticatedMsg p{
-				margin: 0px;
-				margin-left: 20px;
-				margin-right: 10px;
-
-				font-size: 1.2em;
+				height: auto;
+				align-items: stretch;
 			}
 
 			#status{
-				display: flex;
-				justify-content: flex-end;
-				align-self: center;
-				flex: 1;
+				align-self: stretch;
+				margin-top: 10px;
 			}
 
-			#select{
-				margin: 0px;
-				padding: 0px;
-				border-radius: 30px;
-				background: lightgray;
-				display: flex;
-				justify-content: flex-end;
-				align-items: center;
-			}
+		}
 
-			#select p{
-				margin: 0px;
-				margin-right: 10px;
-				margin-left: 20px;
-				font-size: 1.2em;
-				padding: 0px;
-			}
-
-			/*@media screen and (max-width: 480px), screen and (orientation: portrait){*/
-			@media screen and (max-width: 620px) {
-				#content, #footer{
-					flex-direction: column;
-				}
-
-				#footer{
-					height: auto;
-					align-items: stretch;
-				}
-
-				#status{
-					align-self: stretch;
-					margin-top: 10px;
-				}
-
-			}
-
-		</style>
+	</style>
 	<template>
 		<div id="content">
 			<section id="servers">
@@ -252,7 +252,7 @@
 		<section id="footer">
 			<template is="dom-if" if="{{computeIf(authenticated, noAuth)}}">
 				<section id="auth">
-			 			<paper-input label="username..." id="userInput" value="{{user}}"></paper-input>
+					<paper-input label="username..." id="userInput" value="{{user}}"></paper-input>
 					<paper-input label="password..." id="passwordInput" value="{{password}}" type="password"></paper-input>
 					<paper-fab icon="arrow-forward" mini="" title="Authenticate" role="button" on-tap="actionAuthenticate" style="background: rgb(1, 145, 197);width: 48px !important;">
 					</paper-fab>
@@ -282,319 +282,328 @@
 	</template>
 </dom-module>
 <script>
-		Polymer({
-				is: 'diya-chooser',
-				properties: {
-						forceAuth: { type: Boolean, value: false, notify: true },
-						noAuth: { type: Boolean, value: false, notify: true },
-						selector: { notify: true },
-						single: { type: Boolean, value: false, notify: true },
-						nodes: { type: Array, value: function() {return [];} }
-				},
+	Polymer({
+		is: 'diya-chooser',
+		properties: {
+			forceAuth: { type: Boolean, value: false, notify: true },
+			noAuth: { type: Boolean, value: false, notify: true },
+			selector: { notify: true },
+			single: { type: Boolean, value: false, notify: true },
+			nodes: { type: Array, value: function() {return [];} }
+		},
 
-				ready: function () {
-						var that = this;
-						this.nodes = [];
-						this.servers = [];
-						this.user = null;
-						this.password = null;
-						this.authenticated = false;
-						this.selector = null;
-
-
-						d1.on('open', function(addr){
-							that.onServerConnected(addr);
-						}).on('close', function(addr, err){
-							that.onServerDisconnected(addr, err);
-						}).on('peer-connected', function(peerId){
-							that.addNode(peerId);
-						}).on('peer-disconnected', function(peerId){
-							that.removeNode(peerId);
-						});
-
-						// Auto connection
-						this.retrieveServerSettings();
-						this.retrieveUserSettings();
-						var selector = this.retrieveServerConnection();
-						this.authenticate(this.user, this.password, selector);
-						this.autoconnect(selector);
+		ready: function () {
+			var that = this;
+			this.nodes = [];
+			this.servers = [];
+			this.user = null;
+			this.password = null;
+			this.authenticated = false;
+			this.selector = null;
 
 
-				},
+			d1.on('open', function(addr){
+				that.onServerConnected(addr);
+			}).on('close', function(addr, err){
+				that.onServerDisconnected(addr, err);
+			}).on('peer-connected', function(peerId){
+				that.addNode(peerId);
+			}).on('peer-disconnected', function(peerId){
+				that.removeNode(peerId);
+			});
 
-				show: function () {
-						this.style.display = 'flex';
-				},
+			// Auto connection
+			this.retrieveServerSettings();
+			this.retrieveUserSettings();
+			var selector = this.retrieveServerConnection();
+			this.autoconnect().then(function(){
+				that.authenticate(that.user, that.password, selector);
+			});
 
-				hide: function () {
-						this.style.display = 'none';
-				},
 
-				/////////////////////////////////////////////////////////////
-				/////////////// Node related methods ////////////////////////
-				/////////////////////////////////////////////////////////////
-				addNode: function (dn) {
-						for (var i = 0; i < this.nodes.length; i++) {
-								if (this.nodes[i].name === dn)
-								return false;
-						}
+		},
 
-						this.push('nodes',{
-								name: dn,
-								authenticated: 'notAuthenticated',
-								selected: false
-						});
-						//this.displayHack();
-						return true;
-				},
+		show: function () {
+			this.style.display = 'flex';
+		},
 
-				findNodeFromName: function(name) {
-						for (var i = 0; i < this.nodes.length; i++) {
-								if (this.nodes[i].name === name) {
-										console.log('node ' + name + ' found: ' + i);
-										return i;
-								}
-						}
+		hide: function () {
+			this.style.display = 'none';
+		},
 
-						//Not  found
-						return -1;
-				},
+		/////////////////////////////////////////////////////////////
+		/////////////// Node related methods ////////////////////////
+		/////////////////////////////////////////////////////////////
+		addNode: function (dn) {
+			for (var i = 0; i < this.nodes.length; i++) {
+				if (this.nodes[i].name === dn)
+					return false;
+			}
 
-				removeNode: function (dn) {
-						for (var i = 0; i < this.nodes.length; i++) {
-								if (this.nodes[i].name === dn) {
-										this.splice('nodes', i, 1);
-										this.displayHack();
-										return true;
-								}
-						}
-						return false;
-				},
+			this.push('nodes',{
+				name: dn,
+				authenticated: 'notAuthenticated',
+				selected: false
+			});
+			//this.displayHack();
+			return true;
+		},
 
-				//Dirty Hack, Bug in Polymer : style is lost when a template repeat's underlying data changes
-				displayHack: function () {
-						var nodes = this.$.nodes.querySelectorAll('.nodeEntry');
-						for (var i = 0; i < nodes.length; i++) {
-								nodes[i].setAttribute('class', '');
-						}
-						for (var i = 0; i < nodes.length; i++) {
-								nodes[i].setAttribute('class', 'nodeEntry');
-						}
-				},
-
-				authenticate: function (user, password, selectedNodes) {
-						var that = this;
-
-						d1(selectedNodes).auth(user, password, function (nodeId, authenticated) {
-								if (authenticated) {
-										that.saveUserSettings();
-										that.authenticated = true;
-								} else if (!that.authenticated) {
-										that.$.authFailedToast.show();
-								}
-						});
-				},
-
-				/////////////////////////////////////////////////////////////
-				////////////////////// Server related methods ///////////////
-				/////////////////////////////////////////////////////////////
-				retrieveServerSettings: function () {
-						var savedServerSettingsStr = localStorage.getItem('diya.chooser.servers');
-
-						if (savedServerSettingsStr) {
-								try {
-										var savedServerSettings = JSON.parse(savedServerSettingsStr);
-										if (Array.isArray(savedServerSettings)) {
-												for (var i = 0; i < savedServerSettings.length; i++) {
-														this.addServer(savedServerSettings[i]);
-												}
-										}
-								} catch (e) {
-								}	//ignore settings
-						}
-				},
-
-				//ignore settings
-				saveServerSettings: function () {
-						var serverSettings = this.servers.map(function (s) {
-								return s.addr;
-						});
-						var serverSettingsStr = JSON.stringify(serverSettings);
-						localStorage.setItem('diya.chooser.servers', serverSettingsStr);
-				},
-
-				retrieveUserSettings: function () {
-						this.user = localStorage.getItem('diya.chooser.user') || '';
-						this.password = localStorage.getItem('diya.chooser.password') || '';
-				},
-
-				saveUserSettings: function () {
-						localStorage.setItem('diya.chooser.user', this.user);
-						localStorage.setItem('diya.chooser.password', this.password);
-				},
-
-				retrieveServerConnection: function () {
-						var selector = null;
-
-						var serverConnection = localStorage.getItem('diya.chooser.autoconnect') || '';
-						if (serverConnection && serverConnection !== "null") {
-							selector = serverConnection;
-						}
-						return selector;
-				},
-
-				autoconnect: function(selector) {
-					if(this._autoconnecting || !this.servers) return;
-						this._autoconnecting = true;
-						var i = this.getServerIndex(localStorage.getItem('diya.chooser.autoconnectaddress'));
-						if(i!==-1) {
-								this.connectServer(i, selector);
-						}
-					},
-
-				saveServerConnection: function () {
-						localStorage.setItem('diya.chooser.autoconnect', this.selector);
-				},
-
-				addServer: function (addr) {
-						if (!addr.startsWith('ws://') && !addr.startsWith('wss://')) {
-								addr = 'ws://' + addr;
-						}
-						for (var i = 0; i < this.servers.length; i++) {
-								if (this.servers[i].addr === addr)
-								return false;
-						}
-						this.push('servers',{
-								addr: addr,
-								status: 'disconnected'
-						});
-						this.saveServerSettings();
-						return true;
-				},
-
-				removeServer: function (index) {
-						var server = this.servers[index];
-
-						if (server.addr === d1.currentServer())
-								d1.disconnect();
-
-						this.splice('servers', index, 1);
-						this.saveServerSettings();
-				},
-
-				getServer: function (addr) {
-						for (var i = 0; i < this.servers.length; i++) {
-								if (this.servers[i].addr === addr)
-										return this.servers[i];
-						}
-						return null;
-				},
-
-				connectServer: function(index, selector){
-						var that = this;
-						that.authenticated = false;
-						this.servers.forEach(function(s){	
-							s.status = 'disconnected';	
-						});
-
-						that.servers[index].status = 'connecting';
-						d1.connect(this.servers[index].addr).catch(function(err){
-							that.servers[index].status = 'unreachable';
-						}).then(function() {
-							that.servers[index].status = 'connected';
-							if(selector) {
-									that.selector = selector;
-									var nodeId = that.findNodeFromName(selector);
-									if(nodeId > -1) {
-											var pathAsString = "nodes."+nodeId+".selected";
-											that.set(pathAsString, true);
-									}
-							}
-						});
-				},
-
-				onServerConnected: function (addr) {
-						var server = this.getServer(addr);
-						if (server)
-								server.status = 'connected';
-
-						if (this.user !== '' && this.password !== '') {
-								this.actionAuthenticate();
-						}
-						localStorage.setItem('diya.chooser.autoconnectaddress', addr);
-				},
-
-				onServerDisconnected: function (addr) {
-						var server = this.getServer(addr);
-						if (server)
-								server.status = 'disconnected';
-				},
-
-				getServerIndex: function(addr) {
-						for(var i=0; i<this.servers.length; i++){
-								if(this.servers[i].addr === addr) return i;
-						}
-						return -1;
-				},
-
-				/////////////////////////////////////////////////////////////
-				///////////////////// Action Handlers ///////////////////////
-				/////////////////////////////////////////////////////////////
-				actionAddServer: function (evt) {
-						var serverAddr = this.$.serverInput.value;
-						this.addServer(serverAddr);
-				},
-
-				actionDeleteServer: function (evt) {
-						this.removeServer(evt.model.index);
-				},
-
-				actionConnectServer: function (evt) {
-						this.connectServer(evt.model.index);
-				},
-
-				actionAuthenticate: function (evt) {
-						var user = this.$$('#userInput').value;
-						var password = this.$$('#passwordInput').value;
-						var selectedNodes = this.nodes.map(function (n) {
-								return n.name;
-						});
-						this.authenticate(user, password, selectedNodes);
-				},
-
-				actionDeauthenticate: function (evt) {
-						this.authenticated = false;
-						d1.deauthenticate();
-						this.selector = null;
-				},
-
-				actionNodeSelected: function (evt) {
-						if (!this.single)
-								return;	//In single mode, only one node can be selected at a time
-						//In single mode, only one node can be selected at a time
-						var nodeId = evt.model.index;
-						for (var i = 0; i < this.nodes.length; i++) {
-								if (i !== nodeId)
-								this.nodes[i].selected = false;
-						}
-
-				},
-				actionSelect: function (evt) {
-						if (this.forceAuth && !this.authenticated) {
-								this.$.authToast.show();
-								return;
-						}	//creates an array of the names of the selected robots
-						//creates an array of the names of the selected robots
-						this.selector = this.nodes.filter(function (n) {
-								return n.selected;
-						}).map(function (n) {
-								return n.name;
-						});
-						this.saveServerConnection();
-				},
-
-				computeIf: function (authenticated, noAuth) {
-						return !authenticated && !noAuth;
+		findNodeFromName: function(name) {
+			for (var i = 0; i < this.nodes.length; i++) {
+				if (this.nodes[i].name === name) {
+					console.log('node ' + name + ' found: ' + i);
+					return i;
 				}
-		});
+			}
+
+			//Not  found
+			return -1;
+		},
+
+		removeNode: function (dn) {
+			for (var i = 0; i < this.nodes.length; i++) {
+				if (this.nodes[i].name === dn) {
+					this.splice('nodes', i, 1);
+					//this.displayHack();
+					return true;
+				}
+			}
+			return false;
+		},
+
+		//Dirty Hack, Bug in Polymer : style is lost when a template repeat's underlying data changes
+		displayHack: function () {
+			var nodes = this.$.nodes.querySelectorAll('.nodeEntry');
+			for (var i = 0; i < nodes.length; i++) {
+				nodes[i].setAttribute('class', '');
+			}
+			for (var i = 0; i < nodes.length; i++) {
+				nodes[i].setAttribute('class', 'nodeEntry');
+			}
+		},
+
+		authenticate: function (user, password, selectedNodes) {
+			var that = this;
+
+			d1(selectedNodes).auth(user, password, function (nodeId, authenticated) {
+				if (authenticated) {
+					that.saveUserSettings();
+					that.authenticated = true;
+
+					that.selector = selectedNodes;
+					var nodeId = that.findNodeFromName(selectedNodes);
+					if(nodeId > -1) {
+						var pathAsString = "nodes."+nodeId+".selected";
+						that.set(pathAsString, true);
+					}
+				} else if (!that.authenticated) {
+					that.$.authFailedToast.show();
+				}
+			});
+		},
+
+		/////////////////////////////////////////////////////////////
+		////////////////////// Server related methods ///////////////
+		/////////////////////////////////////////////////////////////
+		retrieveServerSettings: function () {
+			var savedServerSettingsStr = localStorage.getItem('diya.chooser.servers');
+
+			if (savedServerSettingsStr) {
+				try {
+					var savedServerSettings = JSON.parse(savedServerSettingsStr);
+					if (Array.isArray(savedServerSettings)) {
+						for (var i = 0; i < savedServerSettings.length; i++) {
+							this.addServer(savedServerSettings[i]);
+						}
+					}
+				} catch (e) {
+				}	//ignore settings
+			}
+		},
+
+		//ignore settings
+		saveServerSettings: function () {
+			var serverSettings = this.servers.map(function (s) {
+				return s.addr;
+			});
+			var serverSettingsStr = JSON.stringify(serverSettings);
+			localStorage.setItem('diya.chooser.servers', serverSettingsStr);
+		},
+
+		retrieveUserSettings: function () {
+			this.user = localStorage.getItem('diya.chooser.user') || '';
+			this.password = localStorage.getItem('diya.chooser.password') || '';
+		},
+
+		saveUserSettings: function () {
+			localStorage.setItem('diya.chooser.user', this.user);
+			localStorage.setItem('diya.chooser.password', this.password);
+		},
+
+		retrieveServerConnection: function () {
+			var selector = null;
+
+			var serverConnection = localStorage.getItem('diya.chooser.autoconnect') || '';
+			if (serverConnection && serverConnection !== "null") {
+				selector = serverConnection;
+			}
+			return selector;
+		},
+
+		autoconnect: function(selector) {
+			if(this._autoconnecting || !this.servers) return Q();
+			this._autoconnecting = true;
+			var i = this.getServerIndex(localStorage.getItem('diya.chooser.autoconnectaddress'));
+			if(i!==-1) {
+				return this.connectServer(i, selector);
+			}
+		},
+
+		saveServerConnection: function () {
+			localStorage.setItem('diya.chooser.autoconnect', this.selector);
+		},
+
+		addServer: function (addr) {
+			if (!addr.startsWith('ws://') && !addr.startsWith('wss://')) {
+				addr = 'ws://' + addr;
+			}
+			for (var i = 0; i < this.servers.length; i++) {
+				if (this.servers[i].addr === addr)
+					return false;
+			}
+			this.push('servers',{
+				addr: addr,
+				status: 'disconnected'
+			});
+			this.saveServerSettings();
+			return true;
+		},
+
+		removeServer: function (index) {
+			var server = this.servers[index];
+
+			if (server.addr === d1.currentServer())
+				d1.disconnect();
+
+			this.splice('servers', index, 1);
+			this.saveServerSettings();
+		},
+
+		getServer: function (addr) {
+			for (var i = 0; i < this.servers.length; i++) {
+				if (this.servers[i].addr === addr)
+					return this.servers[i];
+			}
+			return null;
+		},
+
+		connectServer: function(index, selector){
+			var that = this;
+			that.authenticated = false;
+			this.servers.forEach(function(s){	
+				s.status = 'disconnected';	
+			});
+
+			that.servers[index].status = 'connecting';
+			return d1.connect(this.servers[index].addr).catch(function(err){
+				that.servers[index].status = 'unreachable';
+			})
+			.then(function() {
+				that.servers[index].status = 'connected';
+				if(selector) {
+					that.selector = selector;
+					var nodeId = that.findNodeFromName(selector);
+					if(nodeId > -1) {
+						var pathAsString = "nodes."+nodeId+".selected";
+						that.set(pathAsString, true);
+					}
+				}
+			});
+		},
+
+		onServerConnected: function (addr) {
+			var server = this.getServer(addr);
+			if (server)
+				server.status = 'connected';
+
+			if (this.user !== '' && this.password !== '') {
+				this.actionAuthenticate();
+			}
+			localStorage.setItem('diya.chooser.autoconnectaddress', addr);
+		},
+
+		onServerDisconnected: function (addr) {
+			var server = this.getServer(addr);
+			if (server)
+				server.status = 'disconnected';
+		},
+
+		getServerIndex: function(addr) {
+			for(var i=0; i<this.servers.length; i++){
+				if(this.servers[i].addr === addr) return i;
+			}
+			return -1;
+		},
+
+		/////////////////////////////////////////////////////////////
+		///////////////////// Action Handlers ///////////////////////
+		/////////////////////////////////////////////////////////////
+		actionAddServer: function (evt) {
+			var serverAddr = this.$.serverInput.value;
+			this.addServer(serverAddr);
+		},
+
+		actionDeleteServer: function (evt) {
+			this.removeServer(evt.model.index);
+		},
+
+		actionConnectServer: function (evt) {
+			this.connectServer(evt.model.index);
+		},
+
+		actionAuthenticate: function (evt) {
+			var user = this.$$('#userInput').value;
+			var password = this.$$('#passwordInput').value;
+			var selectedNodes = this.nodes.map(function (n) {
+				return n.name;
+			});
+			this.authenticate(user, password, selectedNodes);
+		},
+
+		actionDeauthenticate: function (evt) {
+			this.authenticated = false;
+			d1.deauthenticate();
+			this.selector = null;
+		},
+
+		actionNodeSelected: function (evt) {
+			if (!this.single)
+				return;	//In single mode, only one node can be selected at a time
+			//In single mode, only one node can be selected at a time
+			var nodeId = evt.model.index;
+			for (var i = 0; i < this.nodes.length; i++) {
+				if (i !== nodeId)
+					this.nodes[i].selected = false;
+			}
+
+		},
+		actionSelect: function (evt) {
+			if (this.forceAuth && !this.authenticated) {
+				this.$.authToast.show();
+				return;
+			}	//creates an array of the names of the selected robots
+			//creates an array of the names of the selected robots
+			this.selector = this.nodes.filter(function (n) {
+				return n.selected;
+			}).map(function (n) {
+				return n.name;
+			});
+			this.saveServerConnection();
+		},
+
+		computeIf: function (authenticated, noAuth) {
+			return !authenticated && !noAuth;
+		}
+	});
 </script>
