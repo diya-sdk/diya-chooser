@@ -1,4 +1,4 @@
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../polymer/polmer.html">
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-fab/paper-fab.html">
 <link rel="import" href="../paper-dialog/paper-dialog.html">
@@ -102,7 +102,8 @@
             forceAuth: { type: Boolean, value: false, notify: true },
             noAuth: { type: Boolean, value: false, notify: true },
             selector: { notify: true, observer: 'selectorChanged'},
-            single: { type: Boolean, value: false, notify: true}
+            single: { type: Boolean, value: false, notify: true},
+	        label: {type: String, value: '', notify: true}
         },
 
         ready: function () {
@@ -217,14 +218,15 @@
         hide: function () {
             this.$.dialog.opened = false;
         },
-	
-	computeBtnName: function(selector){
-		if(!selector || Array.isArray(selector) && selector.length === 0) return 'select diya...';
-		else if(Array.isArray(selector)){
+
+  	computeBtnName: function(selector){
+  		if(!selector || Array.isArray(selector) && selector.length === 0) return 'select diya...';
+  		if(this.label) return this.label;
+  		if(Array.isArray(selector)){
 			var str = '';
 			selector.forEach(function(dn){ str = str+' '+dn; });
 			return str;
-		}else {
+		} else {
 			return selector;
 		}
 	},
