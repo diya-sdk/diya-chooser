@@ -5,7 +5,8 @@
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
 
-<script type="text/javascript" src="../diya-sdk/build/diya-sdk.js"></script>
+<!--<script type="text/javascript" src="../diya-sdk/build/diya-sdk.js"></script>-->
+<link rel="import" href="../diya-sdk/src/diya-sdk.html">
 
 <script type="text/javascript">
 	if (!String.prototype.startsWith) {
@@ -471,6 +472,7 @@
 			if(i!==-1) {
 				return this.connectServer(i, selector);
 			}
+			return Q();
 		},
 
 		saveServerConnection: function () {
