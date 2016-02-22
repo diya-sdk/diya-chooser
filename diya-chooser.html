@@ -505,7 +505,7 @@
 
 			var nodeId = evt.model.index;
 			for (var i = 0; i < this.nodes.length; i++) {
-				if (i !== nodeId) { this.nodes[i].selected = false; }
+				if (i !== nodeId) { this.set('nodes.'+i+'.selected', false); }
 			}
 
 		},
