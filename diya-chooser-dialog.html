@@ -84,7 +84,7 @@
 
 	</style>
     	<template>
-	    <paper-button on-click="actionToggle">{{computeBtnName(selector)}}</paper-button>
+	    <paper-button on-click="actionToggle">{{computeBtnName(selector,label)}}</paper-button>
 		<paper-dialog id="dialog">
 			<paper-button id="close" on-tap="actionToggle">
 				<paper-fab icon="close" mini="" title="close dialog" role="button" style="background: grey">
@@ -219,7 +219,7 @@
             this.$.dialog.opened = false;
         },
 
-  	computeBtnName: function(selector){
+  computeBtnName: function(selector,label){
   		if(!selector || Array.isArray(selector) && selector.length === 0) return 'select diya...';
   		if(this.label) return this.label;
   		if(Array.isArray(selector)){
