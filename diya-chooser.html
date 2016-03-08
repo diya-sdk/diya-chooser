@@ -328,10 +328,10 @@
 		stopChooser: function() {
 			this._init();	
 
-			d1.removeListener('open', this._serverConnectedCb);
-			d1.removeListener('close', this._serverDisconnectedCb);
-			d1.removeListener('peer-connected', this._peerConnectedCb);
-			d1.removeListener('peer-disconnected', this._peerDisconnectedCb);
+			if(this._serverConnectedCb) d1.removeListener('open', this._serverConnectedCb);
+			if(this._serverDisconnectedCb) d1.removeListener('close', this._serverDisconnectedCb);
+			if(this._peerConnectedCb) d1.removeListener('peer-connected', this._peerConnectedCb);
+			if(this._peerDisconnectedCb) d1.removeListener('peer-disconnected', this._peerDisconnectedCb);
 
 			this._serverConnectedCb = null;
 			this._serverDisconnectedCb = null;
