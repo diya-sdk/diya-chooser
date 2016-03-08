@@ -317,9 +317,9 @@
 			this._peerDisconnectedCb = this.removeNode.bind(this);
 
 			d1.on('open', this._serverConnectedCb); 
-			}).on('close', this._serverDisconnectedCb);
-			}).on('peer-connected', this._peerConnectedCb);
-			}).on('peer-disconnected', this._peerDisconnectedCb);
+			d1.on('close', this._serverDisconnectedCb);
+			d1.on('peer-connected', this._peerConnectedCb);
+			d1.on('peer-disconnected', this._peerDisconnectedCb);
 
 			this.retrieveServerSettings();
 			this.autoConnect();
