@@ -293,28 +293,50 @@
 			selector: { notify: true },
 			single: { type: Boolean, value: false, notify: true },
 			nodes: { type: Array, value: function() {return [];} },
-			connectedServer: { type: Object, value: null, notify: true }
+			connectedServer: { type: Object, value: null, notify: true },
 		},
 
 		ready: function () {
-			var that = this;
+			this._init();
+			this.startChooser();
+		},
+
+		_init: function() {
 			this.nodes = [];
 			this.servers = [];
 			this.selector = null;
 			this.manualConnect = false;
+		},
 
-			d1.on('open', function(addr){
-				that.onServerConnected(addr);
-			}).on('close', function(addr, err){
-				that.onServerDisconnected(addr, err);
-			}).on('peer-connected', function(peerId){
-				that.addNode(peerId);
-			}).on('peer-disconnected', function(peerId){
-				that.removeNode(peerId);
-			});
+		startChooser: function() {
+			var that = this;
+
+			this._serverConnectedCb = this.onServerConnected.bind(this);
+			this._serverDisconnectedCb = this.onServerDisconnected.bind(this);
+			this._peerConnectedCb = this.addNode.bind(this);
+			this._peerDisconnectedCb = this.removeNode.bind(this);
+
+			d1.on('open', this._serverConnectedCb); 
+			}).on('close', this._serverDisconnectedCb);
+			}).on('peer-connected', this._peerConnectedCb);
+			}).on('peer-disconnected', this._peerDisconnectedCb);
 
 			this.retrieveServerSettings();
 			this.autoConnect();
+		},
+
+		stopChooser: function() {
+			this._init();	
+
+			d1.removeListener('open', this._serverConnectedCb);
+			d1.removeListener('close', this._serverDisconnectedCb);
+			d1.removeListener('peer-connected', this._peerConnectedCb);
+			d1.removeListener('peer-disconnected', this._peerDisconnectedCb);
+
+			this._serverConnectedCb = null;
+			this._serverDisconnectedCb = null;
+			this._peerConnectedCb = null;
+			this._peerDisconnectedCb = null;
 		},
 
 		select: function(selector) {
