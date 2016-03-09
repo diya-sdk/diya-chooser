@@ -297,7 +297,6 @@
 		},
 
 		ready: function () {
-			this._init();
 			this.startChooser();
 		},
 
@@ -310,24 +309,27 @@
 
 		startChooser: function() {
 			var that = this;
-
-			this._serverConnectedCb = this.onServerConnected.bind(this);
-			this._serverDisconnectedCb = this.onServerDisconnected.bind(this);
-			this._peerConnectedCb = this.addNode.bind(this);
-			this._peerDisconnectedCb = this.removeNode.bind(this);
-
-			d1.on('open', this._serverConnectedCb); 
-			d1.on('close', this._serverDisconnectedCb);
-			d1.on('peer-connected', this._peerConnectedCb);
-			d1.on('peer-disconnected', this._peerDisconnectedCb);
-
-			this.retrieveServerSettings();
-			this.autoConnect();
+			
+			d1.disconnect().then(function(){
+				
+				that._init();
+	
+				that._serverConnectedCb = that.onServerConnected.bind(that);
+				that._serverDisconnectedCb = that.onServerDisconnected.bind(that);
+				that._peerConnectedCb = that.addNode.bind(that);
+				that._peerDisconnectedCb = that.removeNode.bind(that);
+	
+				d1.on('open', that._serverConnectedCb); 
+				d1.on('close', that._serverDisconnectedCb);
+				d1.on('peer-connected', that._peerConnectedCb);
+				d1.on('peer-disconnected', that._peerDisconnectedCb);
+	
+				that.retrieveServerSettings();
+				that.autoConnect();
+			});
 		},
 
 		stopChooser: function() {
-			this._init();	
-
 			if(this._serverConnectedCb) d1.removeListener('open', this._serverConnectedCb);
 			if(this._serverDisconnectedCb) d1.removeListener('close', this._serverDisconnectedCb);
 			if(this._peerConnectedCb) d1.removeListener('peer-connected', this._peerConnectedCb);
@@ -340,6 +342,7 @@
 		},
 
 		select: function(selector) {
+			if(!selector) return ;	
 			for(var i = 0; i < this.nodes.length; i++){
 				if(selector.indexOf(this.nodes[i].name) !== -1){
 					this.set('nodes.'+i+'.selected', true);
