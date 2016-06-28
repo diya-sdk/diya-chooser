@@ -410,7 +410,7 @@
 		addServer: function (addr) {
 			if(!addr) { addr = 'wss://localhost/api'; }
 			else if(addr.match(/^[0-9]+$/)) { addr = 'ws://localhost:'+addr; } 
-			else if(addr.match(/^[a-z]*([a-z]+-)*[a-z]+$/)) { addr = "wss://partnering-cloud.com/"+addr+"/api"; }	
+			else if(addr.match(/^[a-z0-9]*([a-z0-9]+-)*[a-z0-9]+$/)) { addr = "wss://partnering-cloud.com/"+addr+"/api"; }	
 			else if(addr.indexOf("wss://") !== 0 && addr.indexOf("ws://") !== 0) { addr = "wss://"+addr; }
 
 			if(this.getServer(addr)) { return false; }
