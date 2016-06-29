@@ -400,6 +400,7 @@
 			d1.deauthenticate();
 			this.set('connectedServer.authenticated', false);
 			this.set('selector', null);
+			this.deleteServerSettings(this.connectedServer.addr);
 		},
 
 		/////////////////////////////////////////////////////////////
@@ -473,7 +474,7 @@
 		///////////////////// Local storage /////////////////////////
 		/////////////////////////////////////////////////////////////
 
-		retrieveServerSettings: function () {
+		getServerSettings: function() {
 			var that = this;
 			var savedServerSettingsStr = localStorage.getItem('diya.chooser.servers');
 
@@ -481,6 +482,16 @@
 			try { var savedServerSettings = JSON.parse(savedServerSettingsStr); } catch (e) { return false; }
 			if (!Array.isArray(savedServerSettings)) { return false; }
 			if (!savedServerSettings.every(function(e) { return e && e.addr; })) { return false; }
+
+			return savedServerSettings;
+		},
+
+		retrieveServerSettings: function () {
+			var that = this;
+			
+			savedServerSettings = this.getServerSettings();
+
+			if (!savedServerSettings) { return false; }
 
 			savedServerSettings.forEach(function(e) { e.authenticated = false; });
 
@@ -498,6 +509,26 @@
 
 		retrieveConnectedServer: function() {
 			return localStorage.getItem('diya.chooser.servers.last');
+		},
+
+		deleteServerSettings: function (serverToDelete) {
+			var that = this;
+			var newServerSettings = [];
+
+			savedServerSettings = this.getServerSettings();
+			if (!savedServerSettings) { return false; }
+			
+			// Delete saved password for the serverToDelete
+			savedServerSettings.forEach(function(server) { 
+				if (server.addr === serverToDelete) {
+					server.password = "";
+				}
+				newServerSettings.push(server);
+			});
+
+			this.set('servers', newServerSettings);
+
+			this.saveServerSettings();
 		},
 
 		/////////////////////////////////////////////////////////////
