@@ -61,6 +61,9 @@
 		#serverEntries{
 			overflow: auto;
 			flex: 1;
+			margin-left: 10px;
+			padding-left: 10px;
+			border-left: 2px solid lightgray;
 
 		}
 
@@ -92,11 +95,19 @@
 		}
 
 		.disconnected{
-			background: gray;
+			background: red;
 		}
 
 		.connected{
 			background: green;
+		}
+
+		.connecting {
+			background: orange;
+		}
+
+		.disconnecting {
+			background: orange;
 		}
 
 		.unreachable{
@@ -199,6 +210,11 @@
 			padding: 0px;
 		}
 
+		#btnToggleServers {
+			min-width: initial;
+			padding: 5px;
+		}
+
 		/*@media screen and (max-width: 480px), screen and (orientation: portrait){*/
 		@media screen and (max-width: 620px) {
 			#content, #footer{
@@ -227,20 +243,37 @@
 					<paper-fab icon="add" mini title="add server" role="button" on-tap="actionAddServer" style="background: green">
 					</paper-fab>
 				</section>
-				<section id="serverEntries">
-					<template is="dom-repeat" items="{{servers}}" as="server">
-						<section class="serverEntry">
+				<section id="selectedServer">
+					<section class="serverEntry">
+						<paper-button id="btnToggleServers" on-tap="actionToggleServers"><iron-icon icon="{{serverDropdownIcon(showServers)}}"></iron-icon></paper-button>
+						<template is="dom-if" if="{{selectedServer}}">
 							<div class="info">
-								<p class="name">{{formatAddr(server.addr)}}</p>
-								<p class="addr">{{server.addr}}</p>
+								<p class="name">{{formatAddr(selectedServer.addr)}}</p>
+								<p class="addr">{{selectedServer.addr}}</p>
 							</div>
-							<paper-fab icon="delete" mini title="add server" role="button" on-tap="actionDeleteServer" style="background: gray">
-							</paper-fab>
-							<paper-fab icon$="{{serverIcon(server, selectedServer.*)}}" mini title="add server" role="button" on-tap="actionConnectServer" style="background: rgb(1, 145, 197)">
-							</paper-fab>
-						</section>
-					</template>
+							<paper-fab mini icon$="{{serverIcon(selectedServer, selectedServer.*)}}" class$="{{selectedServer.status}}"></paper-fab>
+						</template>
+						<template is="dom-if" if="{{!selectedServer}}">
+							<p style="margin: 10px; font-weight: bold">no server selected</p>
+						</template>
+					</section>
 				</section>
+				<template is="dom-if" if="{{showServers}}">
+					<section id="serverEntries">
+						<template is="dom-repeat" items="{{servers}}" as="server">
+							<section class="serverEntry">
+								<div class="info">
+									<p class="name">{{formatAddr(server.addr)}}</p>
+									<p class="addr">{{server.addr}}</p>
+								</div>
+								<paper-fab icon="delete" mini title="add server" role="button" on-tap="actionDeleteServer" style="background: gray">
+								</paper-fab>
+								<paper-fab icon$="{{serverIcon(server, selectedServer.*)}}" mini title="add server" role="button" on-tap="actionConnectServer" style="background: rgb(1, 145, 197)">
+								</paper-fab>
+							</section>
+						</template>
+					</section>
+				</template>
 			</section>
 
 			<section id="nodes">
@@ -282,13 +315,6 @@
 
 		<paper-toast id="authToast" text="You must be authenticated !"></paper-toast>
 		<paper-toast id="authFailedToast" text="Your username or password is wrong !"></paper-toast>
-		<paper-toast id="socketErrorToast" text="Websocket connection error">
-			<ul>
-				<li><a target="_blank" href="{{sslExceptionAddress(currentAddress)}}">Check SSL certificate status...</a></li>
-				<li>Check your WiFi connection...</li>
-				<li>Check remote diya-node status...</li>
-			</ul>
-		</paper-toast>
 
 	</template>
 </dom-module>
@@ -313,6 +339,7 @@
 			this.servers = [];
 			this.selector = null;
 			this.manualConnect = false;
+			this.showServers = false;
 		},
 
 		startChooser: function() {
@@ -442,6 +469,9 @@
 
 			this.splice('servers', index, 1);
 			this.saveServerSettings();
+			if(server === this.selectedServer) {
+				this.set('selectedServer', null);
+			}
 		},
 
 		getServer: function (addr) {
@@ -491,7 +521,6 @@
 		},
 
 		onServerDisconnecting: function () {
-			console.log('disconnecting');
 			if(! this.selectedServer ) return ;
 			this.set('selectedServer.status', 'disconnecting');
 		},
@@ -502,8 +531,6 @@
 		},
 
 		onSocketError: function(error) {
-			this.currentAddress = d1.addr();
-			this.$.socketErrorToast.show();	
 		},
 
 		/////////////////////////////////////////////////////////////
@@ -571,9 +598,14 @@
 		///////////////////// Action Handlers ///////////////////////
 		/////////////////////////////////////////////////////////////
 
+		actionToggleServers: function(evt) {
+			this.showServers = !this.showServers;
+		},
+
 		actionAddServer: function (evt) {
 			var serverAddr = this.$.serverInput.value;
 			this.addServer(serverAddr);
+			this.showServers = true;
 		},
 
 		actionDeleteServer: function (evt) {
@@ -581,7 +613,9 @@
 		},
 
 		actionConnectServer: function (evt) {
+			console.log(evt.model.index);
 			this.connectServer(evt.model.index, true);
+			this.showServers = false;
 		},
 
 		actionAuthenticate: function (evt) {
@@ -613,6 +647,7 @@
 		},
 
 		formatAddr: function(addr) {
+			if(! addr ) return "";
 			var fields = addr.split('/');
 			if(fields.length > 3) {
 				return fields[fields.length - 2];
@@ -620,7 +655,14 @@
 			return addr;
 		},
 
+		sortServers: function(s1, s2) {
+			a1 = this.formatAddr(s1.addr);
+			a2 = this.formatAddr(s2.addr);
+			return a1 < a2 ? -1 : (a1 > a2 ? 1 : 0);
+		},
+
 		serverIcon: function(server) {
+			if (! server ) return ;
 			if (server === this.selectedServer) {
 				if (this.selectedServer.status === 'connected')	return "check";
 				else if (this.selectedServer.status === 'connecting') return "cached";
@@ -630,9 +672,8 @@
 			else return "arrow-forward";
 		},
 
-		sslExceptionAddress: function(addr) {
-			return addr.replace('wss://', 'https://').replace('ws://', 'https://');	
+		serverDropdownIcon: function(showServers) {
+			return showServers ? 'arrow-drop-up' : 'arrow-drop-down';
 		}
-
 	});
 </script>
