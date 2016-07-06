@@ -236,7 +236,7 @@
 							</div>
 							<paper-fab icon="delete" mini title="add server" role="button" on-tap="actionDeleteServer" style="background: gray">
 							</paper-fab>
-							<paper-fab icon="arrow-forward" mini title="add server" role="button" on-tap="actionConnectServer" style="background: rgb(1, 145, 197)">
+							<paper-fab icon$="{{serverIcon(server, selectedServer.*)}}" mini title="add server" role="button" on-tap="actionConnectServer" style="background: rgb(1, 145, 197)">
 							</paper-fab>
 						</section>
 					</template>
@@ -254,16 +254,16 @@
 			</section>
 		</div>
 		<section id="footer">
-			<template is="dom-if" if="{{displayAuthentication(connectedServer.*, noAuth)}}">
+			<template is="dom-if" if="{{displayAuthentication(selectedServer.*, noAuth)}}">
 				<section id="auth">
-					<paper-input label="username..." id="userInput" value="{{connectedServer.user}}"></paper-input>
-					<paper-input label="password..." id="passwordInput" value="{{connectedServer.password}}" type="password"></paper-input>
+					<paper-input label="username..." id="userInput" value="{{selectedServer.user}}"></paper-input>
+					<paper-input label="password..." id="passwordInput" value="{{selectedServer.password}}" type="password"></paper-input>
 					<paper-fab icon="arrow-forward" mini="" title="Authenticate" role="button" on-tap="actionAuthenticate" style="background: rgb(1, 145, 197);width: 48px !important;">
 					</paper-fab>
 				</section>
 			</template>
 			<section id="status">
-				<template is="dom-if" if="{{!displayAuthentication(connectedServer.*, noAuth)}}">
+				<template is="dom-if" if="{{!displayAuthentication(selectedServer.*, noAuth)}}">
 					<section id="authenticatedMsg">
 						<div>
 							<p>logout</p>
@@ -282,6 +282,13 @@
 
 		<paper-toast id="authToast" text="You must be authenticated !"></paper-toast>
 		<paper-toast id="authFailedToast" text="Your username or password is wrong !"></paper-toast>
+		<paper-toast id="socketErrorToast" text="Websocket connection error">
+			<ul>
+				<li><a target="_blank" href="{{sslExceptionAddress(currentAddress)}}">Check SSL certificate status...</a></li>
+				<li>Check your WiFi connection...</li>
+				<li>Check remote diya-node status...</li>
+			</ul>
+		</paper-toast>
 
 	</template>
 </dom-module>
@@ -294,7 +301,7 @@
 			selector: { notify: true },
 			single: { type: Boolean, value: false, notify: true },
 			nodes: { type: Array, value: function() {return [];} },
-			connectedServer: { type: Object, value: null, notify: true },
+			selectedServer: { type: Object, value: null, notify: true },
 		},
 
 		ready: function () {
@@ -316,12 +323,18 @@
 				that._init();
 	
 				that._serverConnectedCb = that.onServerConnected.bind(that);
+				that._serverConnectingCb = that.onServerConnecting.bind(that);
 				that._serverDisconnectedCb = that.onServerDisconnected.bind(that);
+				that._serverDisconnectingCb = that.onServerDisconnecting.bind(that);
+				that._socketErrorCb = that.onSocketError.bind(that);
 				that._peerConnectedCb = that.addNode.bind(that);
 				that._peerDisconnectedCb = that.removeNode.bind(that);
 	
 				d1.on('open', that._serverConnectedCb); 
+				d1.on('opening', that._serverConnectingCb);
 				d1.on('close', that._serverDisconnectedCb);
+				d1.on('closing', that._serverDisconnectingCb);
+				d1.on('error', that._socketErrorCb);
 				d1.on('peer-connected', that._peerConnectedCb);
 				d1.on('peer-disconnected', that._peerDisconnectedCb);
 	
@@ -343,15 +356,15 @@
 		},
 
 		select: function(selector) {
-			if(!selector) return ;	
-			for(var i = 0; i < this.nodes.length; i++){
-				if(selector.indexOf(this.nodes[i].name) !== -1){
+			if (!selector) return ;	
+			for (var i = 0; i < this.nodes.length; i++) {
+				if (selector.indexOf(this.nodes[i].name) !== -1) {
 					this.set('nodes.'+i+'.selected', true);
 				}
 			}
 
 			this.set('selector', selector);
-			this.set('connectedServer.selector', this.selector);
+			this.set('selectedServer.selector', this.selector);
 			this.saveServerSettings();
 		},
 
@@ -380,15 +393,15 @@
 
 		authenticate: function () {
 			var that = this;
-			if(!this.connectedServer) { return ; }
+			if(!this.selectedServer || this.selectedServer.status !== 'connected') { return ; }
 
 			var selectedNodes = this.nodes.map(function(n) { return n.name; });
 
-			d1(selectedNodes).auth(this.connectedServer.user, this.connectedServer.password, function (peerId, authenticated) {
+			d1(selectedNodes).auth(this.selectedServer.user, this.selectedServer.password, function (peerId, authenticated) {
 				if (authenticated) {
-					that.set('connectedServer.authenticated', true); 
+					that.set('selectedServer.authenticated', true); 
 					if(!that.manualConnect) {
-						that.select(that.connectedServer.selector);
+						that.select(that.selectedServer.selector);
 						that.manualConnect = false;
 					}
 				}
@@ -397,11 +410,11 @@
 		},
 
 		deauthenticate: function() {
-			if(!this.connectedServer) { return ; }
+			if(!this.selectedServer || this.selectedServer.status !== 'connected') { return ; }
 			d1.deauthenticate();
-			this.set('connectedServer.authenticated', false);
+			this.set('selectedServer.authenticated', false);
 			this.set('selector', null);
-			this.deleteServerSettings(this.connectedServer.addr);
+			this.deleteServerSettings(this.selectedServer.addr);
 		},
 
 		/////////////////////////////////////////////////////////////
@@ -451,7 +464,14 @@
 			var that = this;
 			this.manualConnect = manual;
 			var server = this.servers[index];
-			return d1.connect(this.servers[index].addr).catch(function(err){ that.set('connectedServer', null); });
+			this.set('selectedServer', server);
+			return d1.connect(this.servers[index].addr).catch(function(err){ that.set('selectedServer.status', 'disconnected'); });
+		},
+
+		disconnectServer: function() {
+			if (!this.selectedServer) { return ;}
+			this.set('selectedServer.status', 'disconnecting');
+			return d1.disconnect();
 		},
 
 		autoConnect: function() {
@@ -459,16 +479,31 @@
 			if(serverId !== -1) { this.connectServer(serverId, false); }
 		},
 
+		onServerConnecting: function() {
+			this.set('selectedServer.status', 'connecting');
+		},
+
 		onServerConnected: function (addr) {
 			var server = this.getServer(addr);
-			this.set('connectedServer', server);
+			this.set('selectedServer.status', 'connected');
 			this.saveConnectedServer();
 			this.authenticate();
 		},
 
+		onServerDisconnecting: function () {
+			console.log('disconnecting');
+			if(! this.selectedServer ) return ;
+			this.set('selectedServer.status', 'disconnecting');
+		},
+
 		onServerDisconnected: function (addr) {
-			this.set('connectedServer.authenticated', false);
-			this.set('connectedServer', null);
+			this.set('selectedServer.authenticated', false);
+			this.set('selectedServer.status', 'disconnected');
+		},
+
+		onSocketError: function(error) {
+			this.currentAddress = d1.addr();
+			this.$.socketErrorToast.show();	
 		},
 
 		/////////////////////////////////////////////////////////////
@@ -505,7 +540,7 @@
 		},
 
 		saveConnectedServer: function() {
-			localStorage.setItem('diya.chooser.servers.last', this.connectedServer.addr);
+			localStorage.setItem('diya.chooser.servers.last', this.selectedServer.addr);
 		},
 
 		retrieveConnectedServer: function() {
@@ -574,7 +609,7 @@
 		},
 
 		displayAuthentication: function (authenticated, noAuth) {
-			return this.connectedServer && !this.connectedServer.authenticated && !noAuth;
+			return this.selectedServer && !this.selectedServer.authenticated && !noAuth;
 		},
 
 		formatAddr: function(addr) {
@@ -584,6 +619,20 @@
 			}
 			return addr;
 		},
+
+		serverIcon: function(server) {
+			if (server === this.selectedServer) {
+				if (this.selectedServer.status === 'connected')	return "check";
+				else if (this.selectedServer.status === 'connecting') return "cached";
+				else if (this.selectedServer.status === 'disconnecting') return "cached";
+				else return "clear";
+			}
+			else return "arrow-forward";
+		},
+
+		sslExceptionAddress: function(addr) {
+			return addr.replace('wss://', 'https://').replace('ws://', 'https://');	
+		}
 
 	});
 </script>
