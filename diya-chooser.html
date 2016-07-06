@@ -223,7 +223,7 @@
 			<section id="servers">
 				<h4>Servers</h4>
 				<section id="serverInputSection">
-					<paper-input id="serverInput" label="add server..."></paper-input>
+					<paper-input id="serverInput" label="add server..." on-keydown="validateOnEnter"></paper-input>
 					<paper-fab icon="add" mini title="add server" role="button" on-tap="actionAddServer" style="background: green">
 					</paper-fab>
 				</section>
@@ -256,8 +256,8 @@
 		<section id="footer">
 			<template is="dom-if" if="{{displayAuthentication(connectedServer.*, noAuth)}}">
 				<section id="auth">
-					<paper-input label="username..." id="userInput" value="{{connectedServer.user}}"></paper-input>
-					<paper-input label="password..." id="passwordInput" value="{{connectedServer.password}}" type="password"></paper-input>
+					<paper-input label="username..." id="userInput" value="{{connectedServer.user}}" on-keydown="loginOnEnter" required="true"></paper-input>
+					<paper-input label="password..." id="passwordInput" value="{{connectedServer.password}}" type="password" on-keydown="loginOnEnter" required="true"></paper-input>
 					<paper-fab icon="arrow-forward" mini="" title="Authenticate" role="button" on-tap="actionAuthenticate" style="background: rgb(1, 145, 197);width: 48px !important;">
 					</paper-fab>
 				</section>
@@ -310,21 +310,21 @@
 
 		startChooser: function() {
 			var that = this;
-			
+
 			d1.disconnect().then(function(){
-				
+
 				that._init();
-	
+
 				that._serverConnectedCb = that.onServerConnected.bind(that);
 				that._serverDisconnectedCb = that.onServerDisconnected.bind(that);
 				that._peerConnectedCb = that.addNode.bind(that);
 				that._peerDisconnectedCb = that.removeNode.bind(that);
-	
-				d1.on('open', that._serverConnectedCb); 
+
+				d1.on('open', that._serverConnectedCb);
 				d1.on('close', that._serverDisconnectedCb);
 				d1.on('peer-connected', that._peerConnectedCb);
 				d1.on('peer-disconnected', that._peerDisconnectedCb);
-	
+
 				that.retrieveServerSettings();
 				that.autoConnect();
 			});
@@ -343,7 +343,7 @@
 		},
 
 		select: function(selector) {
-			if(!selector) return ;	
+			if(!selector) return ;
 			for(var i = 0; i < this.nodes.length; i++){
 				if(selector.indexOf(this.nodes[i].name) !== -1){
 					this.set('nodes.'+i+'.selected', true);
@@ -359,7 +359,7 @@
 		/////////////// Node related methods ////////////////////////
 		/////////////////////////////////////////////////////////////
 		addNode: function (dn) {
-			if(this.getNodeId(dn) !== -1) { return false; } 
+			if(this.getNodeId(dn) !== -1) { return false; }
 			this.push('nodes', { name: dn, selected: false });
 			return true;
 		},
@@ -386,7 +386,7 @@
 
 			d1(selectedNodes).auth(this.connectedServer.user, this.connectedServer.password, function (peerId, authenticated) {
 				if (authenticated) {
-					that.set('connectedServer.authenticated', true); 
+					that.set('connectedServer.authenticated', true);
 					if(!that.manualConnect) {
 						that.select(that.connectedServer.selector);
 						that.manualConnect = false;
@@ -411,8 +411,8 @@
 
 		addServer: function (addr) {
 			if(!addr) { addr = 'wss://localhost/api'; }
-			else if(addr.match(/^[0-9]+$/)) { addr = 'ws://localhost:'+addr; } 
-			else if(addr.match(/^[a-z0-9]*([a-z0-9]+-)*[a-z0-9]+$/)) { addr = "wss://partnering-cloud.com/"+addr+"/api"; }	
+			else if(addr.match(/^[0-9]+$/)) { addr = 'ws://localhost:'+addr; }
+			else if(addr.match(/^[a-z0-9]*([a-z0-9]+-)*[a-z0-9]+$/)) { addr = "wss://partnering-cloud.com/"+addr+"/api"; }
 			else if(addr.indexOf("wss://") !== 0 && addr.indexOf("ws://") !== 0) { addr = "wss://"+addr; }
 
 			if(this.getServer(addr)) { return false; }
@@ -438,7 +438,7 @@
 			}
 			return null;
 		},
-		
+
 		getServerId: function (addr) {
 			for (var i = 0; i < this.servers.length; i++) {
 				if (this.servers[i].addr === addr)
@@ -489,7 +489,7 @@
 
 		retrieveServerSettings: function () {
 			var that = this;
-			
+
 			savedServerSettings = this.getServerSettings();
 
 			if (!savedServerSettings) { return false; }
@@ -518,9 +518,9 @@
 
 			savedServerSettings = this.getServerSettings();
 			if (!savedServerSettings) { return false; }
-			
+
 			// Delete saved password for the serverToDelete
-			savedServerSettings.forEach(function(server) { 
+			savedServerSettings.forEach(function(server) {
 				if (server.addr === serverToDelete) {
 					server.password = "";
 				}
@@ -567,7 +567,7 @@
 
 		},
 		actionSelect: function (evt) {
-			if (this.forceAuth && !this.authenticated) { this.$.authToast.show(); return; }	
+			if (this.forceAuth && !this.authenticated) { this.$.authToast.show(); return; }
 			var selector = this.nodes.filter(function (n) { return n.selected; }).map(function (n) { return n.name; });
 
 			this.select(selector);
@@ -583,6 +583,20 @@
 				return fields[fields.length - 2];
 			}
 			return addr;
+		},
+
+		// Validate the chooser with a press on enter
+		validateOnEnter: function (e) {
+			if (e.which === 13) { // The 'Enter' key
+				this.actionAddServer(e)
+			}
+		},
+
+		// Trigger login on 'Enter' press
+		loginOnEnter: function (e) {
+			if (e.which === 13) { // The 'Enter' key
+				this.actionAuthenticate(e)
+			}
 		},
 
 	});
