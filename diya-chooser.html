@@ -215,6 +215,14 @@
 			padding: 5px;
 		}
 
+		#btnSelect {
+			background: green;
+		}
+
+		#btnSelect[disabled] {
+			background: gray;
+		}
+
 		/*@media screen and (max-width: 480px), screen and (orientation: portrait){*/
 		@media screen and (max-width: 620px) {
 			#content, #footer{
@@ -239,7 +247,7 @@
 			<section id="servers">
 				<h4>Servers</h4>
 				<section id="serverInputSection">
-					<paper-input id="serverInput" label="add server..."></paper-input>
+					<paper-input id="serverInput" label="add server..." on-keydown="validateOnEnter"></paper-input>
 					<paper-fab icon="add" mini title="add server" role="button" on-tap="actionAddServer" style="background: green">
 					</paper-fab>
 				</section>
@@ -289,8 +297,8 @@
 		<section id="footer">
 			<template is="dom-if" if="{{displayAuthentication(selectedServer.*, noAuth)}}">
 				<section id="auth">
-					<paper-input label="username..." id="userInput" value="{{selectedServer.user}}"></paper-input>
-					<paper-input label="password..." id="passwordInput" value="{{selectedServer.password}}" type="password"></paper-input>
+					<paper-input label="username..." id="userInput" value="{{selectedServer.user}}" on-keydown="loginOnEnter" required="true"></paper-input>
+					<paper-input label="password..." id="passwordInput" value="{{selectedServer.password}}" type="password" on-keydown="loginOnEnter" required="true"></paper-input>
 					<paper-fab icon="arrow-forward" mini="" title="Authenticate" role="button" on-tap="actionAuthenticate" style="background: rgb(1, 145, 197);width: 48px !important;">
 					</paper-fab>
 				</section>
@@ -307,13 +315,14 @@
 				</template>
 				<div id="select">
 					<p>select</p>
-					<paper-fab mini icon="check" title="Deauthenticate" role="button" on-tap="actionSelect" style="background: green">
+					<paper-fab id="btnSelect" mini icon="check" disabled="{{!selectionUpdated}}" title="Deauthenticate" role="button" on-tap="actionSelect">
 					</paper-fab>
 				</div>
 			</section>
 		</section>
 
 		<paper-toast id="authToast" text="You must be authenticated !"></paper-toast>
+		<paper-toast id="addrToast" text="Your typed an invalid address"></paper-toast>
 		<paper-toast id="authFailedToast" text="Your username or password is wrong !"></paper-toast>
 
 	</template>
@@ -344,11 +353,11 @@
 
 		startChooser: function() {
 			var that = this;
-			
+
 			d1.disconnect().then(function(){
-				
+
 				that._init();
-	
+
 				that._serverConnectedCb = that.onServerConnected.bind(that);
 				that._serverConnectingCb = that.onServerConnecting.bind(that);
 				that._serverDisconnectedCb = that.onServerDisconnected.bind(that);
@@ -357,14 +366,14 @@
 				that._peerConnectedCb = that.addNode.bind(that);
 				that._peerDisconnectedCb = that.removeNode.bind(that);
 	
-				d1.on('open', that._serverConnectedCb); 
 				d1.on('opening', that._serverConnectingCb);
+				d1.on('open', that._serverConnectedCb);
 				d1.on('close', that._serverDisconnectedCb);
 				d1.on('closing', that._serverDisconnectingCb);
 				d1.on('error', that._socketErrorCb);
 				d1.on('peer-connected', that._peerConnectedCb);
 				d1.on('peer-disconnected', that._peerDisconnectedCb);
-	
+
 				that.retrieveServerSettings();
 				that.autoConnect();
 			});
@@ -392,6 +401,7 @@
 
 			this.set('selector', selector);
 			this.set('selectedServer.selector', this.selector);
+			this.set('selectionUpdated', false);
 			this.saveServerSettings();
 		},
 
@@ -399,7 +409,7 @@
 		/////////////// Node related methods ////////////////////////
 		/////////////////////////////////////////////////////////////
 		addNode: function (dn) {
-			if(this.getNodeId(dn) !== -1) { return false; } 
+			if(this.getNodeId(dn) !== -1) { return false; }
 			this.push('nodes', { name: dn, selected: false });
 			return true;
 		},
@@ -450,10 +460,9 @@
 
 
 		addServer: function (addr) {
-			if(!addr) { addr = 'wss://localhost/api'; }
-			else if(addr.match(/^[0-9]+$/)) { addr = 'ws://localhost:'+addr; } 
-			else if(addr.match(/^[a-z0-9]*([a-z0-9]+-)*[a-z0-9]+$/)) { addr = "wss://partnering-cloud.com/"+addr+"/api"; }	
-			else if(addr.indexOf("wss://") !== 0 && addr.indexOf("ws://") !== 0) { addr = "wss://"+addr; }
+			var peer = d1.parsePeer(addr);
+			if(!peer || !peer.addr) return false;
+			var addr = peer.addr;
 
 			if(this.getServer(addr)) { return false; }
 
@@ -481,7 +490,7 @@
 			}
 			return null;
 		},
-		
+
 		getServerId: function (addr) {
 			for (var i = 0; i < this.servers.length; i++) {
 				if (this.servers[i].addr === addr)
@@ -551,7 +560,7 @@
 
 		retrieveServerSettings: function () {
 			var that = this;
-			
+
 			savedServerSettings = this.getServerSettings();
 
 			if (!savedServerSettings) { return false; }
@@ -580,9 +589,9 @@
 
 			savedServerSettings = this.getServerSettings();
 			if (!savedServerSettings) { return false; }
-			
+
 			// Delete saved password for the serverToDelete
-			savedServerSettings.forEach(function(server) { 
+			savedServerSettings.forEach(function(server) {
 				if (server.addr === serverToDelete) {
 					server.password = "";
 				}
@@ -604,8 +613,12 @@
 
 		actionAddServer: function (evt) {
 			var serverAddr = this.$.serverInput.value;
-			this.addServer(serverAddr);
-			this.showServers = true;
+			if(this.addServer(serverAddr)) {
+				this.$.serverInput.value = "";
+				this.showServers = true;
+			} else {
+				this.$.addrToast.show();	
+			}
 		},
 
 		actionDeleteServer: function (evt) {
@@ -620,13 +633,16 @@
 
 		actionAuthenticate: function (evt) {
 			this.authenticate();
+			this.selectionUpdated = true;
 		},
 
 		actionDeauthenticate: function (evt) {
 			this.deauthenticate();
+			this.selectionUpdated = true;
 		},
 
 		actionNodeSelected: function (evt) {
+			this.selectionUpdated = true;
 			if (!this.single) { return; }
 
 			var nodeId = evt.model.index;
@@ -636,7 +652,7 @@
 
 		},
 		actionSelect: function (evt) {
-			if (this.forceAuth && !this.authenticated) { this.$.authToast.show(); return; }	
+			if (this.forceAuth && !this.authenticated) { this.$.authToast.show(); return; }
 			var selector = this.nodes.filter(function (n) { return n.selected; }).map(function (n) { return n.name; });
 
 			this.select(selector);
@@ -674,6 +690,21 @@
 
 		serverDropdownIcon: function(showServers) {
 			return showServers ? 'arrow-drop-up' : 'arrow-drop-down';
+		},
+
+		// Validate the chooser with a press on enter
+		validateOnEnter: function (e) {
+			if (e.which === 13) { // The 'Enter' key
+				this.actionAddServer(e)
+			}
+		},
+
+		// Trigger login on 'Enter' press
+		loginOnEnter: function (e) {
+			if (e.which === 13) { // The 'Enter' key
+				this.actionAuthenticate(e)
+			}
 		}
+
 	});
 </script>
