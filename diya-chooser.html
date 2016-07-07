@@ -384,6 +384,10 @@
 			if(this._serverDisconnectedCb) d1.removeListener('close', this._serverDisconnectedCb);
 			if(this._peerConnectedCb) d1.removeListener('peer-connected', this._peerConnectedCb);
 			if(this._peerDisconnectedCb) d1.removeListener('peer-disconnected', this._peerDisconnectedCb);
+			if(this._serverConnectingCb) d1.removeListener('opening', this._serverConnectingCb);
+			if(this._serverDisconnectingCb) d1.removeListener('closing', this._serverDisconnectingCb);
+			if(this._socketErrorCb) d1.removeListener('error', this._socketErrorCb);
+
 
 			this._serverConnectedCb = null;
 			this._serverDisconnectedCb = null;
