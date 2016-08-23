@@ -63,7 +63,7 @@
 		is: 'diya-node-item',
 		properties: {
 			diyaNode: { notify: true, observer: 'onDiyaNodeChanged' },
-			checked: { type: Boolean, value: false },
+			checked: { type: Boolean, value: false, notify: true },
 			type: { value: "cloud" }
 		},
 		onDiyaNodeChanged: function() {
