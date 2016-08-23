@@ -5,6 +5,7 @@
 <link rel="import" href="../paper-button/paper-button.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../neon-animation/neon-animated-pages.html">
 
 <link rel="import" href="../diya-sdk/src/diya-sdk.html">
 
@@ -50,6 +51,20 @@
 			display: flex;
 			flex-wrap: wrap;
 			justify-content: center;
+		}
+
+		#serverInputPages {
+			display: block;
+			height: 48px;
+		}
+
+		#selectedServer {
+			display: flex;
+			align-items: center;
+		}
+
+		#selectedServer .serverEntry {
+			flex: 1;
 		}
 
 		#serverInputSection {
@@ -256,27 +271,29 @@
 	<template>
 		<div id="content">
 			<section id="servers">
-				<h4>Servers</h4>
-				<section id="serverInputSection">
-					<paper-input id="serverInput" label="add server..." on-keydown="validateOnEnter"></paper-input>
-					<paper-fab icon="add" mini title="add server" role="button" on-tap="actionAddServer" style="background: green">
-					</paper-fab>
-				</section>
-				<section id="selectedServer">
-					<section class="serverEntry">
-						<paper-button id="btnToggleServers" on-tap="actionToggleServers"><iron-icon icon="{{serverDropdownIcon(showServers)}}"></iron-icon></paper-button>
-						<template is="dom-if" if="{{selectedServer}}">
-							<div class="info">
-								<p class="name">{{formatAddr(selectedServer.addr)}}</p>
-								<p class="addr">{{selectedServer.addr}}</p>
-							</div>
-							<paper-fab mini icon$="{{serverIcon(selectedServer, selectedServer.*)}}" class$="{{selectedServer.status}}"></paper-fab>
-						</template>
-						<template is="dom-if" if="{{!selectedServer}}">
-							<p style="margin: 10px; font-weight: bold">no server selected</p>
-						</template>
+				<neon-animated-pages id="serverInputPages" selected="1">
+					<section id="serverInputSection">
+						<paper-input id="serverInput" label="add server..." on-keydown="validateOnEnter"></paper-input>
+						<paper-fab icon="arrow-forward" mini title="add server" role="button" on-tap="actionAddServer" style="background: #0191C5"></paper-fab>
+						<paper-fab icon="clear" mini title="add server" role="button" on-tap="actionCloseNewServerInput" style="background: red"></paper-fab>
 					</section>
-				</section>
+					<section id="selectedServer">
+						<section class="serverEntry">
+							<paper-button id="btnToggleServers" on-tap="actionToggleServers"><iron-icon icon="{{serverDropdownIcon(showServers)}}"></iron-icon></paper-button>
+							<template is="dom-if" if="{{selectedServer}}">
+								<div class="info">
+									<p class="name">{{formatAddr(selectedServer.addr)}}</p>
+									<p class="addr">{{selectedServer.addr}}</p>
+								</div>
+								<paper-fab mini icon$="{{serverIcon(selectedServer, selectedServer.*)}}" class$="{{selectedServer.status}}"></paper-fab>
+							</template>
+							<template is="dom-if" if="{{!selectedServer}}">
+								<p style="margin: 10px; font-weight: bold">no server selected</p>
+							</template>
+						</section>
+						<paper-fab icon="add" mini title="add server" role="button" on-tap="actionOpenNewServerInput" style="background: green"></paper-fab>
+					</section>
+				</neon-animated-pages>
 				<template is="dom-if" if="{{showServers}}">
 					<section id="serverEntries">
 						<template is="dom-repeat" items="{{servers}}" as="server">
@@ -622,11 +639,20 @@
 			this.showServers = !this.showServers;
 		},
 
+		actionOpenNewServerInput: function() {
+			this.$.serverInputPages.selected = 0;
+		},
+
+		actionCloseNewServerInput: function() {
+			this.$.serverInputPages.selected = 1;
+		},
+
 		actionAddServer: function (evt) {
 			var serverAddr = this.$.serverInput.value;
 			if(this.addServer(serverAddr)) {
 				this.$.serverInput.value = "";
 				this.showServers = true;
+				this.$.serverInputPages.selected = 1;
 			} else {
 				this.$.addrToast.show();	
 			}

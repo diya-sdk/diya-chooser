@@ -33,6 +33,7 @@
     "paper-dialog-behavior": "PolymerElements/paper-dialog-behavior",
     "paper-dialog": "PolymerElements/paper-dialog",
     "iron-icons": "PolymerElements/iron-icons",
-    "diya-sdk": "partnering/diya-sdk#master"
+    "diya-sdk": "partnering/diya-sdk#master",
+    "neon-animation": "PolymerElements/neon-animated-pages#^1.2.4"
   }
 }
