@@ -8,23 +8,25 @@
 
 <link rel="import" href="../diya-sdk/src/diya-sdk.html">
 
+<link rel="import" href="diya-node-item.html">
+
 <dom-module id="diya-chooser">
 	<style>
 
-		:host{
+		:host {
 			box-sizing: border-box;
 			display: flex;
 			flex-direction: column;
 			background: white;
 		}
 
-		h3{
+		h3 {
 			text-align: center;
 			font-size: 1.4em;
 		}
 		h4 { margin:0; padding:0;}
 
-		#content{
+		#content {
 			padding:10px;
 			box-sizing: border-box;
 			width: 100%;
@@ -36,17 +38,21 @@
 			justify-content: center;
 		}
 
-		#servers{
+		#servers {
 			display: flex;
 			flex-direction: column;
 			flex: 1;
 		}
 
-		#nodes{
+		#nodes {
+			margin-top: 20px;
 			flex: 1;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
 		}
 
-		#serverInputSection{
+		#serverInputSection {
 
 			display: flex;
 			flex-direction: row;
@@ -54,11 +60,11 @@
 			justify-content: left;
 		}
 
-		#serverInputSection paper-input{
+		#serverInputSection paper-input {
 			flex: 1;
 		}
 
-		#serverEntries{
+		#serverEntries {
 			overflow: auto;
 			flex: 1;
 			margin-left: 10px;
@@ -67,7 +73,7 @@
 
 		}
 
-		.serverEntry, .nodeEntry{
+		.serverEntry {
 			display: flex;
 			align-items: center;
 			border-radius: 0px 30px 30px 0px;
@@ -92,6 +98,11 @@
 
 		.serverEntry .info .addr {
 			font-size: 0.6em;
+		}
+
+		diya-node-item {
+			width: 120px;
+			margin: 5px;
 		}
 
 		.disconnected{
@@ -285,12 +296,8 @@
 			</section>
 
 			<section id="nodes">
-				<h4>Robots</h4>
 				<template is="dom-repeat" items="{{nodes}}" as="node">
-					<section class="nodeEntry">
-						<p>{{node.name}}</p>
-						<paper-checkbox checked="{{node.selected}}" on-tap="actionNodeSelected"></paper-checkbox>
-					</section>
+					<diya-node-item diya-node="{{node}}" checked="{{node.selected}}" on-tap="actionNodeSelected"></diya-node-item>
 				</template>
 			</section>
 		</div>

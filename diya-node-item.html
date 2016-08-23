@@ -1,0 +1,82 @@
+<link rel="import" href="../polymer/polymer.html">
+
+
+<dom-module id="diya-node-item">
+	<style>
+		:host {
+			display: flex;
+			align-items: center;
+			position: relative;
+		}
+
+		:host:after {
+			content: '';
+			display: block;
+			margin-top: 100%;
+		}
+
+		:host .nodeEntryContent {
+			position: absolute;
+			top: 0; left: 0; bottom: 0; right: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			background: lightgray;
+			border-radius: 5px;
+			box-shadow: 0px 0px 5px #555;
+		}
+
+		:host h4 {
+			margin: 2px;
+			text-align: center;
+		}
+
+		:host img {
+			display: block;
+			width: 40%;
+		}
+
+		:host paper-fab {
+			position: absolute;
+			right: -8px;
+			bottom: -8px;
+			background: green;
+		}
+
+	</style>
+
+	<template>
+		<div class="nodeEntryContent" on-tap="actionToggleSelect">
+			<paper-ripple></paper-ripple>
+			<img src="{{computeImgSrc(type)}}" />
+			<h4>{{diyaNode.name}}</h4>
+			<template is="dom-if" if="{{checked}}">
+				<paper-fab mini icon="check"></paper-fab>
+			</template>
+		<div>
+	</template>
+</dom-module>
+
+<script>
+	Polymer({
+		is: 'diya-node-item',
+		properties: {
+			diyaNode: { notify: true, observer: 'onDiyaNodeChanged' },
+			checked: { type: Boolean, value: false },
+			type: { value: "cloud" }
+		},
+		onDiyaNodeChanged: function() {
+			if (this.diyaNode.name.indexOf("D1R") === 0) this.type = 'diya';
+			else if (this.diyaNode.name.indexOf("B1R") === 0) this.type = 'dock';
+			else if (this.diyaNode.name.indexOf("E1R") === 0) this.type = 'board';
+			else this.type = 'cloud';
+		},
+		actionToggleSelect: function() {
+			this.checked = !this.checked;
+		},
+		computeImgSrc: function(type) {
+			return this.resolveUrl('./icons/icon_'+this.type+'.png');
+		}
+	});
+</script>
