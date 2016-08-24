@@ -51,6 +51,7 @@
 
 		diya-node-item {
 			width: 110px;
+			height: 110px;
 			margin: 5px;
 		}
 			
@@ -408,13 +409,6 @@
 			var selector = this.nodes.filter(function (n) { return n.selected; }).map(function (n) { return n.name; });
 
 			this.select(selector);
-		},
-
-		displayAuthentication: function (authenticated, noAuth) {
-			return this.selectedServer && !this.selectedServer.authenticated && !noAuth;
-		},
-		
-
-
+		}
 	});
 </script>
