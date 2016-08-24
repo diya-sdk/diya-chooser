@@ -1,0 +1,83 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<dom-module id="diya-server-item">
+	<style>
+		:host {
+			display: flex;
+			align-items: center;
+			border-radius: 0px 30px 30px 0px;
+			margin: 5px;
+			box-shadow: 0px 0px 4px #555;
+			background: lightgray;
+		}
+
+		.info {
+			margin: 0px;
+			margin-left: 5px;
+			flex: 1;
+		}
+
+		.info p {
+			margin: 0px;
+		}
+
+		.info .name {
+			font-weight: bold;
+		}
+
+		.info .addr {
+			font-size: 0.6em;
+		}
+	</style>
+
+	<template>
+		<div class="info">
+			<p class="name">{{formatAddr(server.addr)}}</p>
+			<p class="addr">{{server.addr}}</p>
+		</div>
+		<paper-fab icon="delete" mini title="add server" role="button" on-tap="actionDeleteServer" style="background: gray"></paper-fab>
+		<paper-fab icon$="{{serverIcon(server.*)}}" mini title="add server" role="button" on-tap="actionConnectServer" style="background: rgb(1, 145, 197)"></paper-fab>
+	</template>
+</dom-module>
+
+<script>
+	Polymer({
+		is: 'diya-server-item',
+		properties: {
+			server: { notify: true }
+		},
+
+		ready: function() {
+
+		},
+
+		actionConnectServer: function() {
+			this.fire('action-connect-server', this.server);
+		},
+
+		actionDeleteServer: function() {
+			this.fire('action-delete-server', this.server);
+		},
+
+		serverIcon: function(server) {
+			if (! server ) return ;
+			if (server === this.selectedServer) {
+				if (this.selectedServer.status === 'connected')	return "check";
+				else if (this.selectedServer.status === 'connecting') return "cached";
+				else if (this.selectedServer.status === 'disconnecting') return "cached";
+				else return "clear";
+			}
+			else return "arrow-forward";
+		},
+
+		formatAddr: function(addr) {
+			if(! addr ) return "";
+			var fields = addr.split('/');
+			if(fields.length > 3) {
+				return fields[fields.length - 2];
+			}
+			return addr;
+		},
+
+	});
+</script>

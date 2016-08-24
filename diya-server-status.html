@@ -1,0 +1,64 @@
+<link rel="import" href="../polymer/polymer.html">
+
+
+<dom-module id="diya-server-status">
+	<style>
+		:host {
+			display: flex;
+			align-items: center;
+		}
+
+		#server {
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			height: 48px;
+			flex: 1;
+			margin-left: 5px;
+		}
+
+		#name {
+			font-weight: bold;
+		}
+
+		#addr {
+			font-size: 0.6em;
+		}
+
+		.connected { background: green; }
+		.disconnected { background: red; }
+		.connecting, .disconnecting { background: orange; }
+	</style>
+
+	<template>
+		<paper-fab id="status" mini class$="{{server.status}}"></paper-fab>
+		<div id="server">
+			<div id="name">{{formatAddr(server.addr)}} ({{displayUser(server.authenticated)}})</div>
+			<div id="addr">{{server.addr}}</div>
+		</div>
+	</template>
+</dom-module>
+
+<script>
+	Polymer({
+		is: 'diya-server-status',
+		properties: {
+			server: { notify: false }
+		},
+
+		formatAddr: function(addr) {
+			if(! addr ) return "";
+			var fields = addr.split('/');
+			if(fields.length > 3) {
+				return fields[fields.length - 2];
+			}
+			return addr;
+		},
+
+		displayUser: function(authenticated) {
+			return authenticated ? this.server.user : 'no user';
+		}
+
+	});
+
+</script>

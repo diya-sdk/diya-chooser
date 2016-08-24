@@ -10,6 +10,7 @@
 <link rel="import" href="../diya-sdk/src/diya-sdk.html">
 
 <link rel="import" href="diya-node-item.html">
+<link rel="import" href="diya-server-chooser.html">
 
 <dom-module id="diya-chooser">
 	<style>
@@ -39,11 +40,6 @@
 			justify-content: center;
 		}
 
-		#servers {
-			display: flex;
-			flex-direction: column;
-			flex: 1;
-		}
 
 		#nodes {
 			margin-top: 20px;
@@ -53,263 +49,24 @@
 			justify-content: center;
 		}
 
-		#serverInputPages {
-			display: block;
-			height: 48px;
-		}
-
-		#selectedServer {
-			display: flex;
-			align-items: center;
-		}
-
-		#selectedServer .serverEntry {
-			flex: 1;
-		}
-
-		#serverInputSection {
-
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			justify-content: left;
-		}
-
-		#serverInputSection paper-input {
-			flex: 1;
-		}
-
-		#serverEntries {
-			overflow: auto;
-			flex: 1;
-			margin-left: 10px;
-			padding-left: 10px;
-			border-left: 2px solid lightgray;
-
-		}
-
-		.serverEntry {
-			display: flex;
-			align-items: center;
-			border-radius: 0px 30px 30px 0px;
-			margin: 5px;
-			box-shadow: 0px 0px 4px #555;
-			background: lightgray;
-		}
-
-		.serverEntry .info {
-			margin: 0px;
-			margin-left: 5px;
-			flex: 1;
-		}
-
-		.serverEntry .info p {
-			margin: 0px;
-		}
-
-		.serverEntry .info .name {
-			font-weight: bold;
-		}
-
-		.serverEntry .info .addr {
-			font-size: 0.6em;
-		}
-
 		diya-node-item {
-			width: 120px;
+			width: 110px;
 			margin: 5px;
 		}
-
-		.disconnected{
-			background: red;
-		}
-
-		.connected{
-			background: green;
-		}
-
-		.connecting {
-			background: orange;
-		}
-
-		.disconnecting {
-			background: orange;
-		}
-
-		.unreachable{
-			background: red;
-		}
-
-
-		.nodeEntry p{
-			margin: 10px;
-			flex: 1;
-		}
-
-		.nodeEntry paper-checkbox{
-			margin-right: 10px;
-
-		}
-
-		paper-checkbox::shadow #ink[checked] {
-			color: rgb(1, 145, 197);
-		}
-
-		paper-checkbox::shadow #checkbox.checked {
-			background: rgb(1, 145, 197);
-		}
-
-		#footer{
-			display: flex;
-			border-top: 1px solid lightgray;
-			height: 60px;
-			justify-content: space-between;
-			padding:5px;
-		}
-
-		#auth{
-			display: flex;
-			align-items: center;
-			justify-content: flex-start;
-
-		}
-
-		#userInput{
-			margin-right: 10px;
-		}
-
-		.authenticated{
-			background: green;
-		}
-
-		.notAuthenticated{
-			background: gray;
-		}
-
-		.cannotAuthenticate{
-			background: red;
-		}
-
-		#authenticatedMsg{
-			flex: 1;
-			display: flex;
-		}
-
-		#authenticatedMsg div{
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			background: lightgray;
-			border-radius: 30px;
-		}
-
-		#authenticatedMsg p{
-			margin: 0px;
-			margin-left: 20px;
-			margin-right: 10px;
-
-			font-size: 1.2em;
-		}
-
-		#status{
-			display: flex;
-			justify-content: flex-end;
-			align-self: center;
-			flex: 1;
-		}
-
-		#select{
-			margin: 0px;
-			padding: 0px;
-			border-radius: 30px;
-			background: lightgray;
-			display: flex;
-			justify-content: flex-end;
-			align-items: center;
-		}
-
-		#select p{
-			margin: 0px;
-			margin-right: 10px;
-			margin-left: 20px;
-			font-size: 1.2em;
-			padding: 0px;
-		}
-
-		#btnToggleServers {
-			min-width: initial;
-			padding: 5px;
-		}
-
-		#btnSelect {
-			background: green;
-		}
-
-		#btnSelect[disabled] {
-			background: gray;
-		}
-
-		/*@media screen and (max-width: 480px), screen and (orientation: portrait){*/
-		@media screen and (max-width: 620px) {
-			#content, #footer{
-				flex-direction: column;
-			}
-
-			#footer{
-				height: auto;
-				align-items: stretch;
-			}
-
-			#status{
-				align-self: stretch;
-				margin-top: 10px;
-			}
-
-		}
-
+			
 	</style>
 	<template>
 		<div id="content">
 			<section id="servers">
-				<neon-animated-pages id="serverInputPages" selected="1">
-					<section id="serverInputSection">
-						<paper-input id="serverInput" label="add server..." on-keydown="validateOnEnter"></paper-input>
-						<paper-fab icon="arrow-forward" mini title="add server" role="button" on-tap="actionAddServer" style="background: #0191C5"></paper-fab>
-						<paper-fab icon="clear" mini title="add server" role="button" on-tap="actionCloseNewServerInput" style="background: red"></paper-fab>
-					</section>
-					<section id="selectedServer">
-						<section class="serverEntry">
-							<paper-button id="btnToggleServers" on-tap="actionToggleServers"><iron-icon icon="{{serverDropdownIcon(showServers)}}"></iron-icon></paper-button>
-							<template is="dom-if" if="{{selectedServer}}">
-								<div class="info">
-									<p class="name">{{formatAddr(selectedServer.addr)}}</p>
-									<p class="addr">{{selectedServer.addr}}</p>
-								</div>
-								<paper-fab mini icon$="{{serverIcon(selectedServer, selectedServer.*)}}" class$="{{selectedServer.status}}"></paper-fab>
-							</template>
-							<template is="dom-if" if="{{!selectedServer}}">
-								<p style="margin: 10px; font-weight: bold">no server selected</p>
-							</template>
-						</section>
-						<paper-fab icon="add" mini title="add server" role="button" on-tap="actionOpenNewServerInput" style="background: green"></paper-fab>
-					</section>
-				</neon-animated-pages>
-				<template is="dom-if" if="{{showServers}}">
-					<section id="serverEntries">
-						<template is="dom-repeat" items="{{servers}}" as="server">
-							<section class="serverEntry">
-								<div class="info">
-									<p class="name">{{formatAddr(server.addr)}}</p>
-									<p class="addr">{{server.addr}}</p>
-								</div>
-								<paper-fab icon="delete" mini title="add server" role="button" on-tap="actionDeleteServer" style="background: gray">
-								</paper-fab>
-								<paper-fab icon$="{{serverIcon(server, selectedServer.*)}}" mini title="add server" role="button" on-tap="actionConnectServer" style="background: rgb(1, 145, 197)">
-								</paper-fab>
-							</section>
-						</template>
-					</section>
-				</template>
+				<diya-server-chooser 
+					servers="{{servers}}" 
+					selected-server="{{selectedServer}}" 
+					on-action-connect-server="actionConnectServer"
+					on-action-delete-server="actionDeleteServer"
+					on-action-add-server="actionAddServer"
+					on-action-authenticate="actionAuthenticate"
+					on-action-deauthenticate="actionDeauthenticate">
+				</diya-server-chooser>
 			</section>
 
 			<section id="nodes">
@@ -318,32 +75,6 @@
 				</template>
 			</section>
 		</div>
-		<section id="footer">
-			<template is="dom-if" if="{{displayAuthentication(selectedServer.*, noAuth)}}">
-				<section id="auth">
-					<paper-input label="username..." id="userInput" value="{{selectedServer.user}}" on-keydown="loginOnEnter" required="true"></paper-input>
-					<paper-input label="password..." id="passwordInput" value="{{selectedServer.password}}" type="password" on-keydown="loginOnEnter" required="true"></paper-input>
-					<paper-fab icon="arrow-forward" mini="" title="Authenticate" role="button" on-tap="actionAuthenticate" style="background: rgb(1, 145, 197);width: 48px !important;">
-					</paper-fab>
-				</section>
-			</template>
-			<section id="status">
-				<template is="dom-if" if="{{!displayAuthentication(selectedServer.*, noAuth)}}">
-					<section id="authenticatedMsg">
-						<div>
-							<p>logout</p>
-							<paper-fab icon="clear" mini title="Deauthenticate" role="button" on-tap="actionDeauthenticate" style="background: gray">
-							</paper-fab>
-						</div>
-					</section>
-				</template>
-				<div id="select">
-					<p>select</p>
-					<paper-fab id="btnSelect" mini icon="check" disabled="{{!selectionUpdated}}" title="Deauthenticate" role="button" on-tap="actionSelect">
-					</paper-fab>
-				</div>
-			</section>
-		</section>
 
 		<paper-toast id="authToast" text="You must be authenticated !"></paper-toast>
 		<paper-toast id="addrToast" text="Your typed an invalid address"></paper-toast>
@@ -499,12 +230,11 @@
 			return true;
 		},
 
-		removeServer: function (index) {
-			var server = this.servers[index];
+		removeServer: function (server) {
 
 			if (server.addr === d1.currentServer()) { d1.disconnect(); }
 
-			this.splice('servers', index, 1);
+			this.splice('servers', this.getServerId(server.addr), 1);
 			this.saveServerSettings();
 			if(server === this.selectedServer) {
 				this.set('selectedServer', null);
@@ -527,12 +257,11 @@
 			return -1;
 		},
 
-		connectServer: function(index, manual){
+		connectServer: function(server, manual){
 			var that = this;
 			this.manualConnect = manual;
-			var server = this.servers[index];
 			this.set('selectedServer', server);
-			return d1.connect(this.servers[index].addr).catch(function(err){ that.set('selectedServer.status', 'disconnected'); });
+			return d1.connect(server.addr).catch(function(err){ that.set('selectedServer.status', 'disconnected'); });
 		},
 
 		disconnectServer: function() {
@@ -542,8 +271,8 @@
 		},
 
 		autoConnect: function() {
-			var serverId = this.getServerId(this.retrieveConnectedServer());
-			if(serverId !== -1) { this.connectServer(serverId, false); }
+			var server = this.getServer(this.retrieveConnectedServer());
+			if(server !== -1) { this.connectServer(server, false); }
 		},
 
 		onServerConnecting: function() {
@@ -635,36 +364,20 @@
 		///////////////////// Action Handlers ///////////////////////
 		/////////////////////////////////////////////////////////////
 
-		actionToggleServers: function(evt) {
-			this.showServers = !this.showServers;
-		},
-
-		actionOpenNewServerInput: function() {
-			this.$.serverInputPages.selected = 0;
-		},
-
-		actionCloseNewServerInput: function() {
-			this.$.serverInputPages.selected = 1;
-		},
 
 		actionAddServer: function (evt) {
-			var serverAddr = this.$.serverInput.value;
-			if(this.addServer(serverAddr)) {
-				this.$.serverInput.value = "";
-				this.showServers = true;
-				this.$.serverInputPages.selected = 1;
-			} else {
+			var serverAddr = evt.detail; 
+			if(!this.addServer(serverAddr)) {
 				this.$.addrToast.show();	
 			}
 		},
 
 		actionDeleteServer: function (evt) {
-			this.removeServer(evt.model.index);
+			this.removeServer(evt.detail);
 		},
 
 		actionConnectServer: function (evt) {
-			console.log(evt.model.index);
-			this.connectServer(evt.model.index, true);
+			this.connectServer(evt.detail, true);
 			this.showServers = false;
 		},
 
@@ -680,14 +393,16 @@
 
 		actionNodeSelected: function (evt) {
 			this.selectionUpdated = true;
-			if (!this.single) { return; }
-
-			var nodeId = evt.model.index;
-			for (var i = 0; i < this.nodes.length; i++) {
-				if (i !== nodeId) { this.set('nodes.'+i+'.selected', false); }
+			if (this.single) { 
+				var nodeId = evt.model.index;
+				for (var i = 0; i < this.nodes.length; i++) {
+					if (i !== nodeId) { this.set('nodes.'+i+'.selected', false); }
+				}
 			}
 
+			this.actionSelect();
 		},
+
 		actionSelect: function (evt) {
 			if (this.forceAuth && !this.authenticated) { this.$.authToast.show(); return; }
 			var selector = this.nodes.filter(function (n) { return n.selected; }).map(function (n) { return n.name; });
@@ -698,37 +413,7 @@
 		displayAuthentication: function (authenticated, noAuth) {
 			return this.selectedServer && !this.selectedServer.authenticated && !noAuth;
 		},
-
-		formatAddr: function(addr) {
-			if(! addr ) return "";
-			var fields = addr.split('/');
-			if(fields.length > 3) {
-				return fields[fields.length - 2];
-			}
-			return addr;
-		},
-
-		sortServers: function(s1, s2) {
-			a1 = this.formatAddr(s1.addr);
-			a2 = this.formatAddr(s2.addr);
-			return a1 < a2 ? -1 : (a1 > a2 ? 1 : 0);
-		},
-
-		serverIcon: function(server) {
-			if (! server ) return ;
-			if (server === this.selectedServer) {
-				if (this.selectedServer.status === 'connected')	return "check";
-				else if (this.selectedServer.status === 'connecting') return "cached";
-				else if (this.selectedServer.status === 'disconnecting') return "cached";
-				else return "clear";
-			}
-			else return "arrow-forward";
-		},
-
-		serverDropdownIcon: function(showServers) {
-			return showServers ? 'arrow-drop-up' : 'arrow-drop-down';
-		},
-
+		
 		// Validate the chooser with a press on enter
 		validateOnEnter: function (e) {
 			if (e.which === 13) { // The 'Enter' key
@@ -736,12 +421,6 @@
 			}
 		},
 
-		// Trigger login on 'Enter' press
-		loginOnEnter: function (e) {
-			if (e.which === 13) { // The 'Enter' key
-				this.actionAuthenticate(e)
-			}
-		}
 
 	});
 </script>

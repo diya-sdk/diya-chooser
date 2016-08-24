@@ -1,0 +1,164 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="diya-server-item.html">
+<link rel="import" href="diya-server-status.html">
+<link rel="import" href="diya-server-input.html">
+<link rel="import" href="diya-auth-input.html">
+
+<dom-module id="diya-server-chooser">
+	<style>
+		#authInputSection{
+			display: flex;
+			align-items: center;
+			justify-content: flex-start;
+		}
+		#servers {
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+		}
+	
+		#headerPages {
+			display: block;
+			height: 48px;
+		}
+
+		#selectedServer {
+			display: flex;
+			align-items: center;
+		}
+
+		diya-server-status {
+			flex: 1;
+		}
+
+		#serverInputSection {
+
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: left;
+		}
+
+		#serverInputSection paper-input {
+			flex: 1;
+		}
+
+		#serverEntries {
+			overflow: auto;
+			flex: 1;
+			margin-left: 10px;
+			padding-left: 10px;
+			border-left: 2px solid lightgray;
+
+		}
+
+				
+		#btnToggleServers {
+			min-width: initial;
+			padding: 5px;
+		}
+
+		diya-node-item {
+			width: 120px;
+			margin: 5px;
+		}
+
+	</style>
+
+	<template>
+		<neon-animated-pages id="headerPages" selected="1">
+		
+			<diya-server-input on-action-close="actionDisplayStatus" on-action-add-server="actionDisplayStatus"></diya-server-input>
+
+			<section id="selectedServer">
+				
+				<paper-button id="btnToggleServers" on-tap="actionToggleServers"><iron-icon icon="{{serverDropdownIcon(showServers)}}"></iron-icon></paper-button>
+				
+				<diya-server-status server="{{selectedServer}}"></diya-server-status>
+			
+				<template is="dom-if" if="{{!selectedServer.authenticated}}">
+					<paper-fab icon="account-circle" mini title="authenticate" role="button" on-tap="actionOpenLogIn" style="background: #0191C5"></paper-fab>
+				</template>
+				<template is="dom-if" if="{{selectedServer.authenticated}}">
+					<paper-fab icon="exit-to-app" mini title="authenticate" role="button" on-tap="actionDeauthenticate" style="background: red"></paper-fab>
+				</template>
+				
+				<paper-fab icon="add" mini title="add server" role="button" on-tap="actionOpenNewServerInput" style="background: green"></paper-fab>
+
+			</section>
+
+			<diya-auth-input server="{{selectedServer}}" on-action-close="actionDisplayStatus" on-action-authenticate="actionDisplayStatus"></diya-auth-input>
+				
+		</neon-animated-pages>
+
+
+		<template is="dom-if" if="{{showServers}}">
+			<section id="serverEntries">
+				<template is="dom-repeat" items="{{servers}}" as="server">
+					<diya-server-item server="{{server}}" on-action-connect-server="actionToggleServers"></diya-server-item>
+				</template>
+			</section>
+		</template>
+
+	</template>
+</dom-module>
+
+<script>
+	Polymer({
+		is: 'diya-server-chooser',
+		properties: {
+			servers: { notify: true },
+			selectedServer: { notify: true },
+			showServers: { type: Boolean, notify: true, value: false }
+		},
+
+		ready: function() {
+
+		},
+		
+		/////////////////////////////////////////////////////
+		////////////////// Action handlers //////////////////
+		/////////////////////////////////////////////////////
+
+
+		actionToggleServers: function(evt) {
+			this.showServers = !this.showServers;
+		},
+
+		actionOpenNewServerInput: function(evt) {
+			this.$.headerPages.selected = 0;
+		},
+
+		actionDisplayStatus: function(evt) {
+			this.$.headerPages.selected = 1;
+		},
+
+		actionOpenLogIn: function(evt) {
+			this.$.headerPages.selected = 2;
+		},
+
+		actionDeauthenticate: function(evt) {
+			this.fire('action-deauthenticate');
+		},
+		
+		/////////////////////////////////////////////////////
+		/////////////////// Display helpers  ////////////////
+		/////////////////////////////////////////////////////
+
+		formatAddr: function(addr) {
+			if(! addr ) return "";
+			var fields = addr.split('/');
+			if(fields.length > 3) {
+				return fields[fields.length - 2];
+			}
+			return addr;
+		},
+		
+		serverDropdownIcon: function(showServers) {
+			return showServers ? 'arrow-drop-up' : 'arrow-drop-down';
+		},
+	
+		
+	});
+</script>

@@ -1,0 +1,50 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<dom-module id="diya-auth-input">
+	<style>
+		:host {
+			display: flex;
+			align-items: center;
+		}
+
+		paper-input {
+			flex: 1;
+		}
+
+	</style>
+
+	<template>
+		<paper-input label="username..." id="userInput" value="{{server.user}}" on-keydown="loginOnEnter" required="true"></paper-input>
+		<paper-input label="password..." id="passwordInput" value="{{server.password}}" type="password" on-keydown="loginOnEnter" required="true"></paper-input>
+		<paper-fab icon="clear" mini="" title="echap" role="button" on-tap="actionClose" style="background: red;"></paper-fab>
+		<paper-fab icon="arrow-forward" mini="" title="Authenticate" role="button" on-tap="actionAuthenticate" style="background: rgb(1, 145, 197);"></paper-fab>
+	</template>
+</dom-module>
+
+<script>
+	Polymer({
+		is: 'diya-auth-input',
+		properties: {
+			server: { notify: true }
+		},
+		
+		ready: function() {
+
+		},
+
+		actionClose: function() {
+			this.fire('action-close');
+		},
+
+		actionAuthenticate: function() {
+			this.fire('action-authenticate');
+		},
+
+		// Trigger login on 'Enter' press
+		loginOnEnter: function (e) {
+			if (e.which === 13) { // The 'Enter' key
+				this.actionAuthenticate(e);
+			}
+		}
+	});
+</script>

@@ -1,0 +1,41 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<dom-module id="diya-server-input">
+	<style>
+		:host {
+			display: flex;
+			align-items: center;
+		}
+		paper-input {
+			flex: 1;
+		}
+	</style>
+
+	<template>
+		<paper-input id="serverInput" label="add server..." on-keydown="validateOnEnter"></paper-input>
+		<paper-fab icon="arrow-forward" mini title="add server" role="button" on-tap="actionAddServer" style="background: #0191C5"></paper-fab>
+		<paper-fab icon="clear" mini title="add server" role="button" on-tap="actionClose" style="background: red"></paper-fab>
+	</template>
+</dom-module>
+
+<script>
+	Polymer({
+		is: 'diya-server-input',
+		properties: {
+
+		},
+		
+		ready: function() {
+
+		},
+
+		actionClose: function() {
+			this.fire('action-close');
+		},
+
+		actionAddServer: function() {
+			this.fire('action-add-server', this.$.serverInput.value);
+			this.$.serverInput.value = '';
+		}
+	});
+</script>
