@@ -51,6 +51,9 @@
 			checked: { type: Boolean, value: false, notify: true },
 			type: { value: "cloud" }
 		},
+		listeners: {
+			'tap': 'actionToggleSelect'
+		},
 		onDiyaNodeChanged: function() {
 			if (this.diyaNode.name.indexOf("D1R") === 0) this.type = 'diya';
 			else if (this.diyaNode.name.indexOf("B1R") === 0) this.type = 'dock';
