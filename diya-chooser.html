@@ -295,6 +295,7 @@
 		onServerDisconnected: function (addr) {
 			this.set('selectedServer.authenticated', false);
 			this.set('selectedServer.status', 'disconnected');
+			this.set('selector', null);
 		},
 
 		onSocketError: function(error) {
