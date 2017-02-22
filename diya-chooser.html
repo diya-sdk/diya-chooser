@@ -163,6 +163,9 @@
 
 			this.set('selector', newSelector);
 			this.saveServerSettings();
+
+			console.log(new Error().stack)
+			console.log('selected : '+ newSelector.join(', ')+' based on selector : '+selector.join(', ')+', nodes : '+this.nodes.map(n => n.name).join(', ')+' !')
 		},
 
 		selectorChanged: function() {
@@ -174,8 +177,11 @@
 		addNode: function (dn) {
 			if(this.getNodeId(dn) !== -1) { return false; }
 			this.push('nodes', { name: dn, selected: false });
-			if (this.selectedServer && this.selectedServer.selector && this.selectedServer.selector.indexOf(dn) >= 0)
-				this.select(dn);
+			if (this.selectedServer && 
+				this.selectedServer.selector && 
+				this.selectedServer.authenticated && 
+				this.selectedServer.selector.indexOf(dn) >= 0)
+				this.select([dn]);
 			return true;
 		},
 
@@ -201,9 +207,11 @@
 			if(!this.selectedServer || this.selectedServer.status !== 'connected') { return ; }
 
 			var selectedNodes = this.nodes.map(function(n) { return n.name; });
+			var peerAnswered = false
 
 			d1(selectedNodes).auth(this.selectedServer.user, this.selectedServer.password, function (peerId, authenticated) {
-				if (authenticated) {
+				if (!peerAnswered && authenticated) {
+					peerAnswered = true
 					that.set('selectedServer.authenticated', true); 
 					if(!that.manualConnect) {
 						that.select(that.selectedServer.selector);
@@ -211,7 +219,9 @@
 					}
 
 				}
-				else if (!that.authenticated) {	that.$.authFailedToast.show();	}
+				else if (!authenticated) { 
+					that.$.authFailedToast.show();
+				}
 			});
 		},
 
