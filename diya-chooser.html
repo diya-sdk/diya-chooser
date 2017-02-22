@@ -89,7 +89,7 @@
 		properties: {
 			forceAuth: { type: Boolean, value: false, notify: true },
 			noAuth: { type: Boolean, value: false, notify: true },
-			selector: { notify: true },
+			selector: { notify: true, observer: 'selectorChanged'},
 			single: { type: Boolean, value: false, notify: true },
 			nodes: { type: Array, value: function() {return [];} },
 			selectedServer: { type: Object, value: null, notify: true },
@@ -153,16 +153,19 @@
 
 		select: function(selector) {
 			if (!selector) return ;	
+			var newSelector = []
 			for (var i = 0; i < this.nodes.length; i++) {
 				if (selector.indexOf(this.nodes[i].name) !== -1) {
 					this.set('nodes.'+i+'.selected', true);
+					newSelector.push(this.nodes[i].name)
 				}
 			}
 
-			this.set('selector', selector);
-			this.set('selectedServer.selector', this.selector);
-			this.set('selectionUpdated', false);
+			this.set('selector', newSelector);
 			this.saveServerSettings();
+		},
+
+		selectorChanged: function() {
 		},
 
 		/////////////////////////////////////////////////////////////
@@ -171,6 +174,8 @@
 		addNode: function (dn) {
 			if(this.getNodeId(dn) !== -1) { return false; }
 			this.push('nodes', { name: dn, selected: false });
+			if (this.selectedServer && this.selectedServer.selector && this.selectedServer.selector.indexOf(dn) >= 0)
+				this.select(dn);
 			return true;
 		},
 
@@ -178,6 +183,9 @@
 			var i = this.getNodeId(dn);
 			if(i === -1) { return false; }
 			this.splice('nodes', i, 1);
+			if (this.selector && this.selector.indexOf(dn) >= 0) {
+				this.set('selector', null)
+			}
 			return true;
 		},
 
@@ -201,6 +209,7 @@
 						that.select(that.selectedServer.selector);
 						that.manualConnect = false;
 					}
+
 				}
 				else if (!that.authenticated) {	that.$.authFailedToast.show();	}
 			});
@@ -385,16 +394,13 @@
 
 		actionAuthenticate: function (evt) {
 			this.authenticate();
-			this.selectionUpdated = true;
 		},
 
 		actionDeauthenticate: function (evt) {
 			this.deauthenticate();
-			this.selectionUpdated = true;
 		},
 
 		actionNodeSelected: function (evt) {
-			this.selectionUpdated = true;
 			if (this.single) { 
 				var nodeId = evt.model.index;
 				for (var i = 0; i < this.nodes.length; i++) {
@@ -409,6 +415,7 @@
 			if (this.forceAuth && !this.authenticated) { this.$.authToast.show(); return; }
 			var selector = this.nodes.filter(function (n) { return n.selected; }).map(function (n) { return n.name; });
 
+			this.set('selectedServer.selector', selector);
 			this.select(selector);
 		}
 	});
