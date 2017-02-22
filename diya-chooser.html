@@ -164,7 +164,6 @@
 			this.set('selector', newSelector);
 			this.saveServerSettings();
 
-			console.log(new Error().stack)
 			console.log('selected : '+ newSelector.join(', ')+' based on selector : '+selector.join(', ')+', nodes : '+this.nodes.map(n => n.name).join(', ')+' !')
 		},
 
