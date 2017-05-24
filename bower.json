@@ -24,16 +24,16 @@
     "tests"
   ],
   "dependencies": {
-    "paper-button": "PolymerElements/paper-button",
-    "paper-input": "PolymerElements/paper-input",
-    "paper-fab": "PolymerElements/paper-fab",
-    "paper-toast": "PolymerElements/paper-toast",
-    "paper-checkbox": "PolymerElements/paper-checkbox",
-    "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior",
-    "paper-dialog-behavior": "PolymerElements/paper-dialog-behavior",
-    "paper-dialog": "PolymerElements/paper-dialog",
-    "iron-icons": "PolymerElements/iron-icons",
+    "paper-button": "PolymerElements/paper-button#2.x",
+    "paper-input": "PolymerElements/paper-input#2.x",
+    "paper-fab": "PolymerElements/paper-fab#2.x",
+    "paper-toast": "PolymerElements/paper-toast#2.x",
+    "paper-checkbox": "PolymerElements/paper-checkbox#2.x",
+    "iron-overlay-behavior": "PolymerElements/iron-overlay-behavior#2.x",
+    "paper-dialog-behavior": "PolymerElements/paper-dialog-behavior#2.x",
+    "paper-dialog": "PolymerElements/paper-dialog#2.x",
+    "iron-icons": "PolymerElements/iron-icons#2.x",
     "diya-sdk": "partnering/diya-sdk#master",
-    "neon-animation": "PolymerElements/neon-animated-pages#^1.2.4"
+    "neon-animation": "PolymerElements/neon-animation#2.x"
   }
 }

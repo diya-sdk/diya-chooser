@@ -1,19 +1,20 @@
 <link rel="import" href="../polymer/polymer.html">
 
 <dom-module id="diya-auth-input">
-	<style>
-		:host {
-			display: flex;
-			align-items: center;
-		}
-
-		paper-input {
-			flex: 1;
-		}
-
-	</style>
-
 	<template>
+		<style>
+			:host {
+				display: flex;
+				align-items: center;
+			}
+
+			paper-input {
+				flex: 1;
+			}
+
+		</style>
+
+
 		<paper-input label="username..." id="userInput" value="{{server.user}}" on-keydown="loginOnEnter" required="true"></paper-input>
 		<paper-input label="password..." id="passwordInput" value="{{server.password}}" type="password" on-keydown="loginOnEnter" required="true"></paper-input>
 		<paper-fab icon="clear" mini="" title="echap" role="button" on-tap="actionClose" style="background: red;"></paper-fab>
@@ -27,7 +28,7 @@
 		properties: {
 			server: { notify: true }
 		},
-		
+
 		ready: function() {
 
 		},

@@ -2,38 +2,39 @@
 
 
 <dom-module id="diya-node-item">
-	<style>
-		:host {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			position: relative;
-			background: lightgray;
-			border-radius: 5px;
-			box-shadow: 0px 0px 5px #555;
-		}
-
-		:host h4 {
-			margin: 2px;
-			text-align: center;
-		}
-
-		:host img {
-			display: block;
-			width: 40%;
-		}
-
-		:host paper-fab {
-			position: absolute;
-			right: -8px;
-			bottom: -8px;
-			background: green;
-		}
-
-	</style>
-
 	<template>
+		<style>
+			:host {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				position: relative;
+				background: lightgray;
+				border-radius: 5px;
+				box-shadow: 0px 0px 5px #555;
+			}
+
+			:host h4 {
+				margin: 2px;
+				text-align: center;
+			}
+
+			:host img {
+				display: block;
+				width: 40%;
+			}
+
+			:host paper-fab {
+				position: absolute;
+				right: -8px;
+				bottom: -8px;
+				background: green;
+			}
+
+		</style>
+
+
 		<paper-ripple></paper-ripple>
 		<img src="{{computeImgSrc(type)}}" />
 		<h4>{{diyaNode.name}}</h4>

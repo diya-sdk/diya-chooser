@@ -2,35 +2,36 @@
 
 
 <dom-module id="diya-server-status">
-	<style>
-		:host {
-			display: flex;
-			align-items: center;
-		}
-
-		#server {
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-			height: 48px;
-			flex: 1;
-			margin-left: 5px;
-		}
-
-		#name {
-			font-weight: bold;
-		}
-
-		#addr {
-			font-size: 0.6em;
-		}
-
-		.connected { background: green; }
-		.disconnected { background: red; }
-		.connecting, .disconnecting { background: orange; }
-	</style>
-
 	<template>
+		<style>
+			:host {
+				display: flex;
+				align-items: center;
+			}
+
+			#server {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				height: 48px;
+				flex: 1;
+				margin-left: 5px;
+			}
+
+			#name {
+				font-weight: bold;
+			}
+
+			#addr {
+				font-size: 0.6em;
+			}
+
+			.connected { background: green; }
+			.disconnected { background: red; }
+			.connecting, .disconnecting { background: orange; }
+		</style>
+
+
 		<paper-fab id="status" mini class$="{{server.status}}"></paper-fab>
 		<div id="server">
 			<div id="name">{{formatAddr(server.addr)}} ({{displayUser(server.authenticated)}})</div>
