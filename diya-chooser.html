@@ -411,14 +411,18 @@
 		},
 
 		actionNodeSelected: function (evt) {
-			if (this.single) { 
-				var nodeId = evt.model.index;
-				for (var i = 0; i < this.nodes.length; i++) {
-					if (i !== nodeId) { this.set('nodes.'+i+'.selected', false); }
+			this.async(function() {
+				if (this.single) { 
+					var nodeId = evt.model.index;
+					for (var i = 0; i < this.nodes.length; i++) {
+						if (i !== nodeId) { this.set('nodes.'+i+'.selected', false); } 
+					}
+					console.log(evt)
+					console.log(nodeId)
 				}
-			}
 
-			this.actionSelect();
+				this.actionSelect();
+			})
 		},
 
 		actionSelect: function (evt) {
