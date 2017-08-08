@@ -35,7 +35,7 @@
 		<paper-fab id="status" mini class$="{{server.status}}"></paper-fab>
 		<div id="server">
 			<div id="name">{{formatAddr(server.addr)}} ({{displayUser(server.authenticated)}})</div>
-			<div id="addr">{{server.addr}}</div>
+			<div id="addr"><a href="{{formatHTTPAddr(server.addr)}}" target="_blank">{{server.addr}}</a></div>
 		</div>
 	</template>
 </dom-module>
@@ -54,6 +54,11 @@
 				return fields[fields.length - 2];
 			}
 			return addr;
+		},
+
+		formatHTTPAddr: function (addr) {
+			if (addr == null) return ""
+			return addr.replace('wss://', 'https://').replace('ws://', 'http://')
 		},
 
 		displayUser: function(authenticated) {
