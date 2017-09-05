@@ -20,31 +20,28 @@
 </dom-module>
 
 <script>
-	Polymer({
-		is: 'diya-server-input',
-		properties: {
+	(function () {
+		class DiyaServerInput extends Polymer.Element {
+			static get is () { return 'diya-server-input' }
 
-		},
-
-		ready: function() {
-
-		},
-
-		actionClose: function() {
-			this.fire('action-close');
-		},
-
-		actionAddServer: function() {
-			this.fire('action-add-server', this.$.serverInput.value);
-			this.$.serverInput.value = '';
-		},
-
-
-		// Validate the chooser with a press on enter
-		validateOnEnter: function (e) {
-			if (e.which === 13) { // The 'Enter' key
-				this.actionAddServer(e)
+			actionClose () {
+				this.dispatchEvent (new CustomEvent ('action-close', {}))
 			}
-		},
-	});
+
+			actionAddServer () {
+				this.dispatchEvent (new CustomEvent ('action-add-server', { detail: this.$.serverInput.value }))
+				this.$.serverInput.value = ''
+			}
+
+
+			// Validate the chooser with a press on enter
+			validateOnEnter (e) {
+				if (e.which === 13) { // The 'Enter' key
+					this.actionAddServer(e)
+				}
+			}
+	}
+
+	customElements.define (DiyaServerInput.is, DiyaServerInput)
+	}) ();
 </script>

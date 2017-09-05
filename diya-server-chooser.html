@@ -8,6 +8,10 @@
 <dom-module id="diya-server-chooser">
 	<template>
 		<style>
+			:host {
+				display: block;
+			}
+
 			#authInputSection{
 				display: flex;
 				align-items: center;
@@ -108,60 +112,63 @@
 </dom-module>
 
 <script>
-	Polymer({
-		is: 'diya-server-chooser',
-		properties: {
-			servers: { notify: true },
-			selectedServer: { notify: true },
-			showServers: { type: Boolean, notify: true, value: false }
-		},
-
-		ready: function() {
-
-		},
-
-		/////////////////////////////////////////////////////
-		////////////////// Action handlers //////////////////
-		/////////////////////////////////////////////////////
-
-
-		actionToggleServers: function(evt) {
-			this.showServers = !this.showServers;
-		},
-
-		actionOpenNewServerInput: function(evt) {
-			this.$.headerPages.selected = 0;
-		},
-
-		actionDisplayStatus: function(evt) {
-			this.$.headerPages.selected = 1;
-		},
-
-		actionOpenLogIn: function(evt) {
-			this.$.headerPages.selected = 2;
-		},
-
-		actionDeauthenticate: function(evt) {
-			this.fire('action-deauthenticate');
-		},
-
-		/////////////////////////////////////////////////////
-		/////////////////// Display helpers  ////////////////
-		/////////////////////////////////////////////////////
-
-		formatAddr: function(addr) {
-			if(! addr ) return "";
-			var fields = addr.split('/');
-			if(fields.length > 3) {
-				return fields[fields.length - 2];
+	(function () {
+		class DiyaServerChooser extends Polymer.Element {
+			static get is () { return  'diya-server-chooser' }
+			static get properties () { 
+				return {
+					servers: { notify: true },
+					selectedServer: { notify: true },
+					showServers: { type: Boolean, notify: true, value: false }
+				}
 			}
-			return addr;
-		},
 
-		serverDropdownIcon: function(showServers) {
-			return showServers ? 'arrow-drop-up' : 'arrow-drop-down';
-		},
+			/////////////////////////////////////////////////////
+			////////////////// Action handlers //////////////////
+			/////////////////////////////////////////////////////
 
 
-	});
+			actionToggleServers (evt) {
+				this.showServers = !this.showServers
+			}
+
+			actionOpenNewServerInput (evt) {
+				this.$.headerPages.selected = 0
+			}
+
+			actionDisplayStatus (evt) {
+				this.$.headerPages.selected = 1
+			}
+
+			actionOpenLogIn (evt) {
+				this.$.headerPages.selected = 2
+			}
+
+			actionDeauthenticate (evt) {
+				this.dispatchEvent (new CustomEvent ('action-deauthenticate', {}))
+			}
+
+			/////////////////////////////////////////////////////
+			/////////////////// Display helpers  ////////////////
+			/////////////////////////////////////////////////////
+
+			formatAddr (addr) {
+				if(!addr) {
+					return ""
+				}
+
+				let fields = addr.split('/')
+				if(fields.length > 3) {
+					return fields[fields.length - 2]
+				}
+
+				return addr
+			}
+
+			serverDropdownIcon (showServers) {
+				return showServers ? 'arrow-drop-up' : 'arrow-drop-down'
+			}
+		}
+		customElements.define (DiyaServerChooser.is, DiyaServerChooser)
+	})();
 </script>
