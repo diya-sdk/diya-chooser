@@ -25,11 +25,18 @@
 			static get is () { return 'diya-server-input' }
 
 			actionClose () {
-				this.dispatchEvent (new CustomEvent ('action-close', {}))
+				this.dispatchEvent (new CustomEvent ('action-close', {
+					bubbles: true,
+					composed: true
+				}))
 			}
 
 			actionAddServer () {
-				this.dispatchEvent (new CustomEvent ('action-add-server', { detail: this.$.serverInput.value }))
+				this.dispatchEvent (new CustomEvent ('action-add-server', {
+					bubbles: true,
+					composed: true,
+					detail: this.$.serverInput.value
+				}))
 				this.$.serverInput.value = ''
 			}
 
