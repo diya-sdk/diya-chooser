@@ -91,7 +91,7 @@
 				<paper-fab icon="close" mini="" title="close dialog" role="button" style="background: grey">
 				</paper-fab>
 			</paper-button>
-			<diya-chooser id="chooser" selector="{{selector}}" single="{{single}}" forceauth="{{forceAuth}}" noauth="{{noAuth}}"></diya-chooser>
+			<diya-chooser id="chooser" selected-server="{{selectedServer}}" selector="{{selector}}" single="{{single}}" forceauth="{{forceAuth}}" noauth="{{noAuth}}"></diya-chooser>
 		</paper-dialog>
 	</template>
 </dom-module>
@@ -104,7 +104,8 @@
             noAuth: { type: Boolean, value: false, notify: true },
             selector: { notify: true, observer: 'selectorChanged'},
             single: { type: Boolean, value: false, notify: true},
-	        label: {type: String, value: '', notify: true}
+	        label: {type: String, value: '', notify: true},
+			selectedServer: {notify:true},
         },
 
         ready: function () {
