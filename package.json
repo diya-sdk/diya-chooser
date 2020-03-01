@@ -2,7 +2,7 @@
   "name": "diya-chooser",
   "version": "1.0.1",
   "description": "",
-  "main": "diya-chosser.html",
+  "main": "diya-chooser.html",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/diya-sdk/diya-chooser.git"
