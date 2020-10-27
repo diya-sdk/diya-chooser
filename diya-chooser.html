@@ -60,9 +60,9 @@
 
 		<div id="content">
 			<section id="servers">
-				<diya-server-chooser 
-					servers="{{servers}}" 
-					selected-server="{{selectedServer}}" 
+				<diya-server-chooser
+					servers="{{servers}}"
+					selected-server="{{selectedServer}}"
 					on-action-connect-server="actionConnectServer"
 					on-action-delete-server="actionDeleteServer"
 					on-action-add-server="actionAddServer"
@@ -153,7 +153,7 @@
 		},
 
 		select: function(selector) {
-			if (!selector) return ;	
+			if (!selector) return
 			var newSelector = []
 			for (var i = 0; i < this.nodes.length; i++) {
 				if (selector.indexOf(this.nodes[i].name) !== -1) {
@@ -177,9 +177,9 @@
 		addNode: function (dn) {
 			if(this.getNodeId(dn) !== -1) { return false; }
 			this.push('nodes', { name: dn, selected: false });
-			if (this.selectedServer && 
-				this.selectedServer.selector && 
-				this.selectedServer.authenticated && 
+			if (this.selectedServer &&
+				this.selectedServer.selector &&
+				this.selectedServer.authenticated &&
 				this.selectedServer.selector.indexOf(dn) >= 0)
 				this.select([dn]);
 			return true;
@@ -212,14 +212,14 @@
 			d1(selectedNodes).auth(this.selectedServer.user, this.selectedServer.password, function (peerId, authenticated) {
 				if (!peerAnswered && authenticated) {
 					peerAnswered = true
-					that.set('selectedServer.authenticated', true); 
+					that.set('selectedServer.authenticated', true)
 					if(!that.manualConnect) {
 						that.select(that.selectedServer.selector);
 						that.manualConnect = false;
 					}
 
 				}
-				else if (!authenticated) { 
+				else if (!authenticated) {
 					that.$.authFailedToast.show();
 				}
 			});
@@ -348,9 +348,31 @@
 			this.set('servers', savedServerSettings);
 		},
 
+		formatAddr: function(addr) {
+			if(! addr ) return "";
+			var fields = addr.split('/');
+			if(fields.length > 3) {
+				return fields[fields.length - 2];
+			}
+			return addr;
+		},
+
 		//ignore settings
 		saveServerSettings: function () {
+			this.servers.sort((a, b) => {
+				nameA = this.formatAddr(a.addr)
+				nameB = this.formatAddr(b.addr)
+				if (nameA < nameB) {
+					return -1
+				} else if (nameA > nameB) {
+					return 1
+				} else {
+					return 0
+				}
+			})
+
 			localStorage.setItem('diya.chooser.servers', JSON.stringify(this.servers));
+			this.retrieveServerSettings()
 		},
 
 		saveConnectedServer: function() {
@@ -387,9 +409,9 @@
 
 
 		actionAddServer: function (evt) {
-			var serverAddr = evt.detail; 
+			var serverAddr = evt.detail
 			if(!this.addServer(serverAddr)) {
-				this.$.addrToast.show();	
+				this.$.addrToast.show()
 			}
 		},
 
@@ -412,10 +434,12 @@
 
 		actionNodeSelected: function (evt) {
 			this.async(function() {
-				if (this.single) { 
-					var nodeId = evt.model.index;
+				if (this.single) {
+					var nodeId = evt.model.index
 					for (var i = 0; i < this.nodes.length; i++) {
-						if (i !== nodeId) { this.set('nodes.'+i+'.selected', false); } 
+						if (i !== nodeId) {
+							this.set('nodes.'+i+'.selected', false)
+						}
 					}
 				}
 
